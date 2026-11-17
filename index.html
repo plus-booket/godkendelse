@@ -30,11 +30,22 @@
   .r1 .tael { margin-left:auto; font-size:13px; color:var(--daempet); font-variant-numeric:tabular-nums; }
   .bar { height:3px; background:var(--linje); border-radius:2px; margin-top:10px; overflow:hidden; }
   .bar i { display:block; height:100%; width:0; background:var(--moerk); transition:width .45s var(--ease); }
-  .grupper { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding:10px 0 2px; }
-  .grupper::-webkit-scrollbar { display:none; }
-  .gruppe { flex:none; border:0; background:transparent; border-radius:999px; padding:6px 11px; font-size:13px; font-weight:600; color:var(--daempet); white-space:nowrap; transition:background .2s, color .2s; }
-  .gruppe small { font-weight:500; opacity:.75; margin-left:5px; font-variant-numeric:tabular-nums; }
-  .gruppe[aria-current="true"] { background:var(--moerk); color:#fff; }
+  .gvaelger { display:flex; align-items:center; gap:8px; width:100%; margin-top:10px; border:1.5px solid var(--linje); background:var(--kort); border-radius:12px; padding:9px 12px; text-align:left; transition:border-color .2s; }
+  .gvaelger:hover { border-color:#CFCAC0; }
+  .gvaelger b { font-weight:650; font-size:14px; }
+  .gvaelger span { color:var(--daempet); font-size:13.5px; }
+  .gvaelger em { margin-left:auto; font-style:normal; font-size:13px; color:var(--daempet); font-variant-numeric:tabular-nums; }
+  .gvaelger svg { flex:none; width:14px; height:14px; color:var(--daempet); }
+  .gliste { display:grid; gap:6px; }
+  .gliste button { display:grid; grid-template-columns:1fr auto; gap:2px 10px; align-items:center; text-align:left; border:1.5px solid var(--linje); background:#fff; border-radius:12px; padding:11px 13px; transition:border-color .15s, background .15s; }
+  .gliste button:hover { border-color:#CFCAC0; }
+  .gliste button[aria-current="true"] { border-color:var(--moerk); }
+  .gliste b { font-weight:650; font-size:14.5px; }
+  .gliste span { color:var(--daempet); font-size:13px; grid-column:1; }
+  .gliste em { grid-row:1 / span 2; grid-column:2; font-style:normal; font-size:13px; color:var(--daempet); font-variant-numeric:tabular-nums; }
+  .gliste em.alle { color:var(--ok); font-weight:650; }
+  .gliste i { grid-column:1 / -1; height:3px; border-radius:2px; background:var(--linje); margin-top:7px; overflow:hidden; }
+  .gliste i u { display:block; height:100%; background:var(--moerk); text-decoration:none; }
 
   /* scene */
   .scene { position:relative; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 16px; gap:10px; }
@@ -159,7 +170,7 @@ function start(data) {
     <header class="top">
       <div class="r1"><img id="logo" alt="${esc(D.klinik)}" hidden><span class="tael" id="tael"></span></div>
       <div class="bar"><i id="barfyld"></i></div>
-      <nav class="grupper" id="grupper" aria-label="Grupper"></nav>
+      <button class="gvaelger" id="gvaelger" aria-haspopup="dialog"></button>
     </header>
     <section class="scene" id="scene"></section>
     <footer class="dock" id="dock"></footer>
@@ -226,17 +237,11 @@ function topbar() {
   const n = alle.filter(a => svar[a.fil]).length;
   $('tael').textContent = `${n}/${alle.length}`;
   $('barfyld').style.width = (100 * n / alle.length) + '%';
-  $('grupper').innerHTML = D.grupper.map((g, gi) => {
-    const m = g.annoncer.filter(a => svar[a.fil]).length;
-    return `<button class="gruppe" data-g="${gi}" aria-current="${!faerdig && alle[pos].gi === gi}">${esc(g.navn)}, ${esc(g.slags.toLowerCase())}<small>${m}/${g.annoncer.length}</small></button>`;
-  }).join('');
-  document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
-    const gi = +b.dataset.g, i = alle.findIndex(a => a.gi === gi && !svar[a.fil]);
-    const maal = i >= 0 ? i : alle.findIndex(a => a.gi === gi);
-    if (faerdig) { faerdig = false; pos = maal; tegn(); } else gaaTil(maal, maal > pos ? 'venstre' : 'hoejre');
-  });
-  const cur = $('grupper').querySelector('[aria-current="true"]');
-  if (cur) $('grupper').scrollTo({ left: cur.offsetLeft - 16, behavior: ROLIG ? 'auto' : 'smooth' });
+  const g = faerdig ? null : alle[pos].g, gm = g ? g.annoncer.filter(a => svar[a.fil]).length : 0;
+  $('gvaelger').innerHTML = g
+    ? `<b>${esc(g.navn)}</b><span>${esc(g.slags.toLowerCase())}</span><em>${gm}/${g.annoncer.length}</em><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>`
+    : `<b>Alle grupper</b><em>${D.grupper.length}</em><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>`;
+  $('gvaelger').onclick = aabnGrupper;
   const sk = $('sendknap'), nye = aendringer().length;
   if (sk) { sk.hidden = !nye; sk.textContent = `Send ${nye} svar`; }
 }
@@ -319,6 +324,28 @@ function aabnArk(a) {
     svar[a.fil] = { beslutning:'ret', rettelse:(chips.length ? chips.join(', ') + (t ? ': ' : '') : '') + t }; gem();
     luk(() => videre('ud-venstre'));
   };
+}
+
+function aabnGrupper() {
+  const h = $('arkholder');
+  h.innerHTML = `<div class="skygge" id="skygge"></div>
+    <div class="ark" id="ark" role="dialog" aria-modal="true" aria-label="Vælg gruppe">
+      <div class="greb"></div>
+      <div class="gliste">${D.grupper.map((g, gi) => {
+        const m = g.annoncer.filter(a => svar[a.fil]).length, n = g.annoncer.length;
+        return `<button data-g="${gi}" aria-current="${!faerdig && alle[pos].gi === gi}"><b>${esc(g.navn)}</b><span>${esc(g.slags)}</span>
+          <em class="${m === n ? 'alle' : ''}">${m === n ? 'Færdig' : m + '/' + n}</em><i><u style="width:${100 * m / n}%"></u></i></button>`;
+      }).join('')}</div>
+    </div>`;
+  requestAnimationFrame(() => { $('skygge').classList.add('vis'); $('ark').classList.add('vis'); });
+  const luk = cb => { $('skygge').classList.remove('vis'); $('ark').classList.remove('vis'); setTimeout(() => { h.innerHTML = ''; if (cb) cb(); }, ROLIG ? 0 : 260); };
+  $('skygge').onclick = () => luk();
+  document.addEventListener('keydown', function e1(e) { if (e.key === 'Escape') { document.removeEventListener('keydown', e1); luk(); } });
+  h.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+    const gi = +b.dataset.g, i = alle.findIndex(a => a.gi === gi && !svar[a.fil]);
+    const maal = i >= 0 ? i : alle.findIndex(a => a.gi === gi);
+    luk(() => { if (faerdig) { faerdig = false; pos = maal; tegn(); } else gaaTil(maal, maal > pos ? 'venstre' : 'hoejre'); });
+  });
 }
 
 /* ---------- faerdig og send ---------- */
