@@ -6,140 +6,107 @@
 <meta name="robots" content="noindex">
 <title>Annoncer til godkendelse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --flade:#F6F4EF; --kort:#FFFFFF; --tekst:#36342F; --daempet:#6E6B63; --greige:#A5A195; --linje:#E2DED5; --moerk:#36342F;
+    --flade:#F6F4EF; --kort:#FFFFFF; --tekst:#36342F; --daempet:#6E6B63; --linje:#E2DED5; --moerk:#36342F;
     --ok:#3E6B48; --ok-lys:#E6EFE7; --ret:#9A6B1E; --ret-lys:#F5ECDD; --nej:#8A2B2B; --nej-lys:#F5E4E2;
-    --dock-h: 88px;
+    --ease: cubic-bezier(.2,.7,.2,1);
   }
-  * { box-sizing:border-box; }
-  html,body { margin:0; background:var(--flade); color:var(--tekst); font:15px/1.5 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; height:100%; background:var(--flade); color:var(--tekst); font:15px/1.45 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; overscroll-behavior:none; }
   button, textarea { font:inherit; color:inherit; }
-  button { cursor:pointer; }
-  :focus-visible { outline:3px solid var(--greige); outline-offset:2px; }
-  .serif { font-family:'Cormorant Garamond',Georgia,serif; font-weight:700; }
+  button { cursor:pointer; touch-action:manipulation; }
+  :focus-visible { outline:3px solid #A5A195; outline-offset:2px; }
   [hidden] { display:none !important; }
 
-  /* topbar */
-  .top { position:sticky; top:0; z-index:20; background:rgba(246,244,239,.94); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-bottom:1px solid var(--linje); }
-  .top .ind { max-width:1120px; margin:0 auto; padding:10px 16px 0; display:flex; align-items:center; gap:14px; }
-  .top img.logo { height:26px; width:auto; }
-  .top .titel { font-size:20px; line-height:1.1; }
-  .top .fremdrift { margin-left:auto; font-size:13px; color:var(--daempet); font-variant-numeric:tabular-nums; white-space:nowrap; }
-  .bar { height:3px; background:var(--linje); margin-top:10px; }
-  .bar i { display:block; height:100%; background:var(--moerk); width:0; transition:width .3s ease; }
+  .app { height:100dvh; width:100%; display:grid; grid-template-rows:auto minmax(0,1fr) auto; grid-template-columns:minmax(0,1fr); max-width:520px; margin:0 auto; }
+  .top, .scene, .dock { min-width:0; }
 
-  .grupper { max-width:1120px; margin:0 auto; padding:12px 16px 2px; display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; }
+  /* top */
+  .top { padding:10px 16px 0; }
+  .r1 { display:flex; align-items:center; gap:12px; min-height:30px; }
+  .r1 img { height:24px; width:auto; }
+  .r1 .tael { margin-left:auto; font-size:13px; color:var(--daempet); font-variant-numeric:tabular-nums; }
+  .bar { height:3px; background:var(--linje); border-radius:2px; margin-top:10px; overflow:hidden; }
+  .bar i { display:block; height:100%; width:0; background:var(--moerk); transition:width .45s var(--ease); }
+  .grupper { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding:10px 0 2px; }
   .grupper::-webkit-scrollbar { display:none; }
-  .gruppe { flex:none; border:1.5px solid var(--linje); background:var(--kort); border-radius:999px; padding:7px 14px; font-size:13.5px; font-weight:600; white-space:nowrap; }
-  .gruppe small { font-weight:500; color:var(--daempet); margin-left:6px; font-variant-numeric:tabular-nums; }
-  .gruppe[aria-current="true"] { background:var(--moerk); border-color:var(--moerk); color:#fff; }
-  .gruppe[aria-current="true"] small { color:#D9D6CE; }
+  .gruppe { flex:none; border:0; background:transparent; border-radius:999px; padding:6px 11px; font-size:13px; font-weight:600; color:var(--daempet); white-space:nowrap; transition:background .2s, color .2s; }
+  .gruppe small { font-weight:500; opacity:.75; margin-left:5px; font-variant-numeric:tabular-nums; }
+  .gruppe[aria-current="true"] { background:var(--moerk); color:#fff; }
 
-  main { max-width:1120px; margin:0 auto; padding:14px 16px calc(var(--dock-h) + 40px); display:grid; grid-template-columns:minmax(0,1fr); gap:18px; }
-  .venstre, .info { min-width:0; }
-  @media (min-width:900px) {
-    main { grid-template-columns:minmax(0,420px) minmax(0,1fr); gap:40px; padding-top:22px; }
-    .venstre { position:sticky; top:calc(var(--hh, 140px) + 16px); align-self:start; }
-  }
+  /* scene */
+  .scene { position:relative; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 16px; gap:10px; }
+  .ramme { position:relative; width:100%; display:flex; justify-content:center; align-items:center; flex:1; min-height:0; touch-action:pan-y; container-type:size; }
+  .kortet { position:relative; width:min(100cqw, 80cqh); aspect-ratio:4/5; border-radius:14px; overflow:hidden; background:#E7E3DA; box-shadow:0 10px 30px rgba(54,52,47,.12);
+    transition:transform .38s var(--ease), opacity .38s var(--ease), aspect-ratio .3s var(--ease); will-change:transform, opacity; }
+  .kortet.story { width:min(100cqw, 56.25cqh); aspect-ratio:9/16; }
+  .kortet img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .35s ease; }
+  .kortet img.klar { opacity:1; }
+  .kortet .skimmer { position:absolute; inset:0; background:linear-gradient(100deg, #E7E3DA 30%, #EFECE5 50%, #E7E3DA 70%); background-size:200% 100%; animation:skim 1.2s linear infinite; }
+  @keyframes skim { to { background-position:-200% 0; } }
+  .kortet.ud-venstre { transform:translateX(-110%) rotate(-6deg); opacity:0; }
+  .kortet.ud-hoejre { transform:translateX(110%) rotate(6deg); opacity:0; }
+  .kortet.ud-op { transform:translateY(-30px) scale(.96); opacity:0; }
+  .kortet.ind { transform:scale(.97); opacity:0; transition:none; }
 
-  .hvilken { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; }
-  .hvilken h1 { margin:0; font-size:24px; line-height:1.1; }
-  .hvilken .nr { font-size:13px; color:var(--daempet); white-space:nowrap; }
-  .format { display:inline-flex; background:#E9E6DE; border-radius:999px; padding:3px; margin-bottom:10px; }
-  .format button { border:0; background:transparent; font-size:12.5px; font-weight:600; color:var(--daempet); padding:5px 12px; border-radius:999px; }
+  .maerke { position:absolute; top:12px; left:12px; z-index:2; border-radius:999px; padding:5px 11px; font-size:13px; font-weight:650; display:flex; gap:8px; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .maerke.godkend { background:var(--ok-lys); color:var(--ok); }
+  .maerke.ret { background:var(--ret-lys); color:var(--ret); }
+  .maerke.afvis { background:var(--nej-lys); color:var(--nej); }
+  .maerke button { border:0; background:none; padding:0; font-size:12.5px; font-weight:600; text-decoration:underline; color:inherit; }
+
+  .under { display:flex; align-items:center; gap:10px; width:100%; justify-content:space-between; }
+  .format { display:inline-flex; background:#E9E6DE; border-radius:999px; padding:3px; }
+  .format button { border:0; background:transparent; font-size:12.5px; font-weight:600; color:var(--daempet); padding:5px 12px; border-radius:999px; transition:background .2s, color .2s; }
   .format button[aria-pressed="true"] { background:var(--kort); color:var(--tekst); box-shadow:0 1px 2px rgba(54,52,47,.12); }
-
-  .scene { position:relative; max-width:420px; }
-  .post { background:#fff; border:1px solid var(--linje); border-radius:12px; overflow:hidden; color:#111; }
-  .post .hoved { display:flex; align-items:center; gap:10px; padding:9px 12px; }
-  .avatar { width:32px; height:32px; border-radius:50%; overflow:hidden; flex:none; background:var(--greige); }
-  .avatar img { width:100%; height:100%; display:block; object-fit:cover; }
-  .hvem { line-height:1.2; } .hvem b { font-size:13.5px; font-weight:650; } .hvem span { display:block; font-size:12px; color:#65676b; }
-  .billede { display:block; width:100%; aspect-ratio:4/5; object-fit:cover; background:#E7E3DA; }
-  .cta { display:flex; justify-content:space-between; padding:10px 12px; font-weight:600; font-size:13.5px; border-top:1px solid #efefef; }
-  .story { position:relative; aspect-ratio:9/16; max-height:72vh; border-radius:16px; overflow:hidden; background:#E7E3DA; margin:0 auto; }
-  .story img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-  .story .hoved { position:absolute; top:14px; left:10px; right:10px; display:flex; align-items:center; gap:8px; }
-  .story .hvem b, .story .hvem span { color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.55); }
-
-  /* stempel paa den valgte annonce */
-  .stempel { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:12px; font-size:14px; margin-bottom:10px; max-width:420px; }
-  .stempel.godkend { background:var(--ok-lys); color:var(--ok); }
-  .stempel.ret { background:var(--ret-lys); color:var(--ret); }
-  .stempel.afvis { background:var(--nej-lys); color:var(--nej); }
-  .stempel b { font-weight:700; }
-  .stempel .t { flex:1; min-width:0; color:var(--tekst); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .stempel button { border:0; background:none; text-decoration:underline; font-size:13px; color:inherit; padding:0; }
-
-  .strip { display:flex; gap:8px; overflow-x:auto; padding:12px 0 4px; scrollbar-width:thin; max-width:420px; }
-  .tn { position:relative; flex:none; width:58px; border:0; padding:0; background:none; }
-  .tn span.r { display:block; width:58px; aspect-ratio:4/5; border-radius:7px; background:#E7E3DA center/cover no-repeat; border:2px solid transparent; }
-  .tn[aria-current="true"] span.r { border-color:var(--moerk); }
-  .tn em { display:block; font-style:normal; font-size:11.5px; color:var(--daempet); margin-top:2px; text-align:center; }
-  .prik { position:absolute; top:3px; right:3px; width:18px; height:18px; border-radius:50%; color:#fff; font-size:11px; font-weight:700; display:grid; place-items:center; }
-  .prik.godkend { background:var(--ok); } .prik.ret { background:var(--ret); } .prik.afvis { background:var(--nej); }
-
-  /* hoejre kolonne */
-  .info { display:grid; gap:14px; align-content:start; }
-  .kort { background:var(--kort); border:1px solid var(--linje); border-radius:14px; padding:14px 16px; }
-  .kort h2 { margin:0 0 6px; font-size:15px; font-family:inherit; font-weight:700; }
-  .linjer { margin:0; padding:0; list-style:none; }
-  .linjer li { padding:4px 0; border-top:1px solid var(--linje); font-size:14px; }
-  .linjer li:first-child { border-top:0; }
-  .rolig { font-size:13.5px; color:var(--daempet); }
-  .rolig p { margin:6px 0 0; }
-  .genvej { font-size:12.5px; color:var(--daempet); }
-  .genvej kbd { font:inherit; font-weight:600; border:1px solid var(--linje); border-bottom-width:2px; border-radius:4px; padding:0 5px; background:#fff; color:var(--tekst); }
-  @media (max-width:899px) { .genvej { display:none; } }
+  .nav { display:flex; gap:6px; }
+  .nav button { width:36px; height:36px; border-radius:50%; border:1.5px solid var(--linje); background:var(--kort); font-size:17px; line-height:1; color:var(--daempet); }
 
   /* dock */
-  .dock { position:fixed; left:0; right:0; bottom:0; z-index:30; background:var(--kort); border-top:1px solid var(--linje); box-shadow:0 -6px 20px rgba(54,52,47,.08); padding:10px 12px calc(10px + env(safe-area-inset-bottom)); }
-  .dock .ind { max-width:560px; margin:0 auto; display:grid; gap:8px; }
+  .dock { padding:10px 16px calc(12px + env(safe-area-inset-bottom)); display:grid; gap:8px; }
   .valg { display:grid; grid-template-columns:1fr 1fr 1.6fr; gap:8px; }
-  .valg button { border:1.5px solid var(--linje); background:#fff; border-radius:12px; padding:13px 6px; font-weight:650; font-size:15px; }
+  .valg button { border:1.5px solid var(--linje); background:var(--kort); border-radius:14px; padding:14px 6px; font-weight:650; font-size:15px; transition:transform .12s ease; }
+  .valg button:active { transform:scale(.96); }
   .valg .godkend { background:var(--ok); border-color:var(--ok); color:#fff; }
   .valg .ret { color:var(--ret); }
   .valg .afvis { color:var(--nej); }
-  .send { display:flex; align-items:center; gap:10px; }
-  .send span { flex:1; font-size:13.5px; color:var(--daempet); }
-  .send button { border:0; background:var(--moerk); color:#fff; font-weight:650; border-radius:999px; padding:10px 18px; }
-  .send button:disabled { opacity:.5; cursor:default; }
+  .sendknap { border:0; background:var(--moerk); color:#fff; font-weight:650; border-radius:14px; padding:14px; font-size:15px; }
+  .sendknap:disabled { opacity:.55; cursor:default; }
 
-  /* ark til rettelser */
-  .skygge { position:fixed; inset:0; z-index:40; background:rgba(30,28,24,.35); }
-  .ark { position:fixed; left:0; right:0; bottom:0; z-index:41; background:var(--kort); border-radius:18px 18px 0 0; padding:18px 16px calc(16px + env(safe-area-inset-bottom)); max-width:560px; margin:0 auto; box-shadow:0 -8px 30px rgba(0,0,0,.15); }
-  @media (min-width:900px) { .ark { bottom:24px; border-radius:18px; } }
-  .ark h2 { margin:0 0 4px; font-size:22px; }
-  .ark .hvad { font-size:13.5px; color:var(--daempet); margin-bottom:12px; }
+  /* ark */
+  .skygge { position:fixed; inset:0; z-index:40; background:rgba(30,28,24,.35); opacity:0; transition:opacity .25s; }
+  .skygge.vis { opacity:1; }
+  .ark { position:fixed; left:0; right:0; bottom:0; z-index:41; background:var(--kort); border-radius:20px 20px 0 0; padding:16px 16px calc(16px + env(safe-area-inset-bottom)); max-width:520px; margin:0 auto; box-shadow:0 -8px 30px rgba(0,0,0,.15); transform:translateY(100%); transition:transform .32s var(--ease); }
+  .ark.vis { transform:none; }
+  .ark .greb { width:36px; height:4px; border-radius:2px; background:var(--linje); margin:0 auto 12px; }
   .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
-  .chips button { border:1.5px solid var(--linje); background:#fff; border-radius:999px; padding:7px 12px; font-size:13.5px; }
+  .chips button { border:1.5px solid var(--linje); background:#fff; border-radius:999px; padding:8px 13px; font-size:14px; transition:background .15s, border-color .15s; }
   .chips button[aria-pressed="true"] { border-color:var(--ret); background:var(--ret-lys); color:var(--ret); font-weight:600; }
-  .ark textarea { width:100%; min-height:96px; border:1.5px solid var(--linje); border-radius:12px; padding:10px 12px; resize:vertical; }
-  .ark .knapper { display:grid; grid-template-columns:1fr 2fr; gap:8px; margin-top:12px; }
-  .ark .knapper button { border-radius:12px; padding:12px; font-weight:650; border:1.5px solid var(--linje); background:#fff; }
+  .ark textarea { width:100%; min-height:84px; border:1.5px solid var(--linje); border-radius:12px; padding:10px 12px; resize:none; font-size:16px; }
+  .ark .knapper { display:grid; grid-template-columns:1fr 2fr; gap:8px; margin-top:10px; }
+  .ark .knapper button { border-radius:14px; padding:13px; font-weight:650; border:1.5px solid var(--linje); background:#fff; }
   .ark .knapper .gem { background:var(--ret); border-color:var(--ret); color:#fff; }
   .ark .knapper .gem:disabled { opacity:.5; cursor:default; }
 
   /* faerdig */
-  .faerdig { text-align:left; }
-  .faerdig h1 { font-size:34px; margin:0 0 8px; line-height:1.05; }
-  .tal { display:flex; gap:10px; margin:14px 0; flex-wrap:wrap; }
-  .tal div { flex:1; min-width:90px; border-radius:12px; padding:10px 12px; }
-  .tal b { display:block; font-size:24px; font-variant-numeric:tabular-nums; }
+  .faerdig { width:100%; align-self:center; display:grid; gap:12px; }
+  .tal { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .tal div { border-radius:14px; padding:14px 12px; text-align:center; font-size:13px; }
+  .tal b { display:block; font-size:30px; line-height:1.1; font-variant-numeric:tabular-nums; }
   .tal .godkend { background:var(--ok-lys); color:var(--ok); } .tal .ret { background:var(--ret-lys); color:var(--ret); } .tal .afvis { background:var(--nej-lys); color:var(--nej); }
+  .tak { text-align:center; font-weight:600; color:var(--ok); min-height:22px; }
+  .linkknap { border:0; background:none; color:var(--daempet); text-decoration:underline; padding:6px; justify-self:center; }
 
-  .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(var(--dock-h) + 30px); z-index:50; background:var(--moerk); color:#fff; padding:9px 16px; border-radius:999px; font-size:13.5px; opacity:0; transition:opacity .2s; pointer-events:none; white-space:nowrap; }
-  .toast.vis { opacity:1; }
-  .laeser { min-height:60vh; display:grid; place-items:center; color:var(--daempet); }
-  .fejl { max-width:560px; margin:40px auto; background:var(--nej-lys); color:var(--nej); border-radius:12px; padding:14px 16px; }
-  @media (prefers-reduced-motion: reduce) { * { transition:none !important; scroll-behavior:auto !important; } }
+  .laeser, .fejl { height:100dvh; display:grid; place-items:center; padding:24px; text-align:center; color:var(--daempet); }
+  .fejl div { background:var(--nej-lys); color:var(--nej); border-radius:12px; padding:14px 16px; max-width:420px; }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition:none !important; animation:none !important; } }
 </style>
 </head>
 <body>
 <div id="app"><div class="laeser">Henter dine annoncer…</div></div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwkwR3CmhXosKJdurlSGU6qez9QPUMZDjan8XRtgwWRGRdUuttxj9iSgRPU55NPaWpP/exec';
@@ -149,10 +116,12 @@ const LAGER = 'pb-godkend-' + B;
 const RET_CHIPS = ['Lyset', 'Teksten', 'Prisen', 'Huden', 'Personen', 'Logoet', 'Beskæringen'];
 const NAVN = { godkend:'Godkendt', ret:'Rettes', afvis:'Afvist' };
 const SERVER = { 'Godkendt':'godkend', 'Til rettelse':'ret', 'Afvist':'afvis' };
+const ROLIG = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const app = document.getElementById('app');
+const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let D, alle = [], pos = 0, format = 'feed', faerdigVist = false;
+let D, alle = [], pos = 0, format = 'feed', faerdig = false, travl = false;
 const svar = {}, sendt = {}, billeder = {}, venter = {};
 
 async function api(params) {
@@ -163,230 +132,218 @@ async function post(body) {
   const r = await fetch(API, { method:'POST', credentials:'omit', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(body) });
   const j = await r.json(); if (!j.ok) throw new Error(j.error || 'fejl'); return j;
 }
-function billede(id, cb) {
-  if (!id) return;
-  if (billeder[id]) return cb(billeder[id]);
-  if (venter[id]) return venter[id].push(cb);
-  venter[id] = [cb];
-  api({ api:'billede', b:B, k:K, id }).then(j => { billeder[id] = j.url; venter[id].forEach(f => f(j.url)); delete venter[id]; }).catch(() => delete venter[id]);
+function billede(id) {
+  if (!id) return Promise.resolve(null);
+  if (billeder[id]) return Promise.resolve(billeder[id]);
+  if (!venter[id]) venter[id] = api({ api:'billede', b:B, k:K, id }).then(j => (billeder[id] = j.url)).catch(() => { delete venter[id]; return null; });
+  return venter[id];
 }
-function forhent(i) { const a = alle[i]; if (a) { billede(a.feed, () => {}); } }
+const idFor = (a, f) => f === 'story' ? a.story : a.feed;
+function forhent() { for (let i = 1; i <= 3; i++) { const a = alle[(pos + i) % alle.length]; if (a) billede(idFor(a, format)); } }
 
-if (!B || !K) app.innerHTML = '<div class="fejl">Linket mangler en del. Skriv til os, så sender vi et nyt.</div>';
-else api({ api:'batch', b:B, k:K }).then(j => start(j.data)).catch(e => {
-  app.innerHTML = '<div class="fejl">Annoncerne kunne ikke hentes. Tjek din forbindelse, og genindlæs siden.</div>';
+if (!B || !K) app.innerHTML = '<div class="fejl"><div>Linket mangler en del. Skriv til os, så sender vi et nyt.</div></div>';
+else api({ api:'batch', b:B, k:K }).then(j => start(j.data)).catch(() => {
+  app.innerHTML = '<div class="fejl"><div>Annoncerne kunne ikke hentes. Tjek din forbindelse, og genindlæs siden.</div></div>';
 });
 
 function start(data) {
   D = data;
-  D.grupper.forEach((g, gi) => g.annoncer.forEach(a => alle.push(Object.assign({}, a, { gi, g }))));
+  D.grupper.forEach((g, gi) => g.annoncer.forEach((a, i) => alle.push(Object.assign({}, a, { gi, g, i }))));
   Object.keys(D.svar || {}).forEach(fil => {
     const v = SERVER[D.svar[fil].beslutning];
     if (v) { svar[fil] = { beslutning:v, rettelse:D.svar[fil].rettelse || '' }; sendt[fil] = JSON.stringify(svar[fil]); }
   });
-  try { const gemt = JSON.parse(localStorage.getItem(LAGER) || '{}'); Object.assign(svar, gemt); } catch (e) {}
-  const foerste = alle.findIndex(a => !svar[a.fil]);
-  pos = foerste < 0 ? 0 : foerste;
-  skelet();
-  vis();
-  document.addEventListener('keydown', taster);
+  try { Object.assign(svar, JSON.parse(localStorage.getItem(LAGER) || '{}')); } catch (e) {}
+  const f = alle.findIndex(a => !svar[a.fil]); pos = f < 0 ? 0 : f; faerdig = f < 0;
+  app.innerHTML = `<div class="app">
+    <header class="top">
+      <div class="r1"><img id="logo" alt="${esc(D.klinik)}" hidden><span class="tael" id="tael"></span></div>
+      <div class="bar"><i id="barfyld"></i></div>
+      <nav class="grupper" id="grupper" aria-label="Grupper"></nav>
+    </header>
+    <section class="scene" id="scene"></section>
+    <footer class="dock" id="dock"></footer>
+  </div><div id="arkholder"></div>`;
+  billede(D.logo).then(u => { if (u) { $('logo').src = u; $('logo').hidden = false; } });
+  tegn();
 }
 
 function gem() {
-  const kladde = {}; Object.keys(svar).forEach(f => { if (JSON.stringify(svar[f]) !== sendt[f]) kladde[f] = svar[f]; });
-  try { localStorage.setItem(LAGER, JSON.stringify(kladde)); } catch (e) {}
+  const k = {}; Object.keys(svar).forEach(f => { if (JSON.stringify(svar[f]) !== sendt[f]) k[f] = svar[f]; });
+  try { localStorage.setItem(LAGER, JSON.stringify(k)); } catch (e) {}
 }
+const aendringer = () => Object.keys(svar).filter(f => JSON.stringify(svar[f]) !== sendt[f]);
 
-function skelet() {
-  app.innerHTML = `
-    <header class="top"><div class="ind">
-        <img class="logo" id="logo" alt="${esc(D.klinik)}" hidden>
-        <div class="titel serif" id="titel">${esc(D.klinik)}</div>
-        <div class="fremdrift" id="fremdrift"></div>
-      </div>
-      <nav class="grupper" id="grupper" aria-label="Grupper"></nav>
-      <div class="bar"><i id="barfyld"></i></div>
-    </header>
-    <main id="main"></main>
-    <div class="dock" id="dock"><div class="ind">
-      <div class="send" id="sendlinje" hidden><span id="sendtekst"></span><button id="sendknap">Send svar</button></div>
-      <div class="valg" id="valg">
-        <button class="afvis" data-v="afvis">Afvis</button>
-        <button class="ret" data-v="ret">Ret</button>
-        <button class="godkend" data-v="godkend">Godkend</button>
-      </div>
-    </div></div>
-    <div id="arkholder"></div>`;
-  if (D.logo) billede(D.logo, u => { const l = document.getElementById('logo'); l.src = u; l.hidden = false; document.getElementById('titel').hidden = true; });
-  document.querySelectorAll('#valg button').forEach(b => b.onclick = () => beslut(b.dataset.v));
-  document.getElementById('sendknap').onclick = send;
-}
+/* ---------- tegning ---------- */
 
-function vis() {
-  if (faerdigVist) return visFaerdig();
-  const a = alle[pos], g = a.g, s = svar[a.fil];
-  const iGruppe = g.annoncer.indexOf(g.annoncer.find(x => x.fil === a.fil));
-  document.getElementById('valg').hidden = false; document.getElementById('dock').hidden = false;
-  document.getElementById('main').innerHTML = `
-    <section class="venstre">
-      <div class="hvilken"><h1 class="serif">${esc(g.navn)}</h1><span class="nr">${esc(g.slags)}, nr. ${esc(a.nr)}</span></div>
+function tegn() {
+  topbar();
+  if (faerdig) return tegnFaerdig();
+  $('scene').innerHTML = `
+    <div class="ramme" id="ramme"><div class="kortet ${format}" id="kortet"><div class="skimmer"></div><img id="hb" alt=""></div></div>
+    <div class="under">
       <div class="format" role="group" aria-label="Format">
-        <button data-f="feed" aria-pressed="${format === 'feed'}">Feed 4:5</button>
-        <button data-f="story" aria-pressed="${format === 'story'}">Story 9:16</button>
+        <button data-f="feed" aria-pressed="${format === 'feed'}">Feed</button>
+        <button data-f="story" aria-pressed="${format === 'story'}">Story</button>
       </div>
-      ${s ? stempel(s) : ''}<div class="scene">${scene(a)}</div>
-      <div class="strip" id="strip">${g.annoncer.map((x, i) => {
-        const sx = svar[x.fil], gi = alle.findIndex(y => y.fil === x.fil);
-        return `<button class="tn" data-i="${gi}" aria-current="${x.fil === a.fil}" aria-label="Nr. ${esc(x.nr)}${sx ? ', ' + NAVN[sx.beslutning] : ''}">
-          <span class="r" data-id="${x.feed}"></span>${sx ? `<span class="prik ${sx.beslutning}">${{godkend:'✓',ret:'!',afvis:'×'}[sx.beslutning]}</span>` : ''}<em>${esc(x.nr)}</em></button>`;
-      }).join('')}</div>
-    </section>
-    <section class="info">
-      <div class="kort"><h2>Teksten på billedet</h2><ul class="linjer">${g.billedtekst.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>
-      ${g.opslag ? `<div class="kort"><h2>Tekst over billedet</h2><p class="rolig" style="margin:0">${esc(g.opslag)}</p></div>` : ''}
-      <div class="kort rolig"><h2 style="color:var(--tekst)">Godt at vide</h2>
-        ${g.aegte ? `<p>${esc(g.aegte)}</p>` : ''}
-        <p>Intet går live, før du har godkendt det. Du kan sende dine svar, når du vil, og ændre dem bagefter.</p></div>
-      <p class="genvej">Tastatur: <kbd>G</kbd> godkend, <kbd>R</kbd> ret, <kbd>A</kbd> afvis, <kbd>←</kbd> <kbd>→</kbd> skift annonce.</p>
-    </section>`;
-  document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { format = b.dataset.f; vis(); });
-  document.querySelectorAll('.tn').forEach(b => { b.onclick = () => { pos = +b.dataset.i; vis(); };
-    const r = b.querySelector('.r'); billede(r.dataset.id, u => r.style.backgroundImage = `url("${u}")`); });
-  const fortryd = document.getElementById('fortryd'); if (fortryd) fortryd.onclick = () => { delete svar[a.fil]; gem(); vis(); };
-  const aendr = document.getElementById('aendr'); if (aendr) aendr.onclick = () => aabnArk(a);
-  const id = format === 'story' ? a.story : a.feed;
-  billede(id, u => { const el = document.getElementById('hb'); if (el && alle[pos].fil === a.fil) el.src = u; });
-  if (D.avatar) billede(D.avatar, u => document.querySelectorAll('img.av').forEach(i => i.src = u));
-  const strip = document.getElementById('strip'), cur = strip.querySelector('.tn[aria-current="true"]');
-  if (cur) strip.scrollLeft = cur.offsetLeft - strip.offsetLeft - strip.clientWidth / 2 + cur.clientWidth / 2;
-  const top = document.querySelector('.top'); if (top) document.documentElement.style.setProperty('--hh', top.offsetHeight + 'px');
-  forhent(pos + 1); forhent(pos + 2);
-  status();
+      <div class="nav"><button id="forrige" aria-label="Forrige annonce">‹</button><button id="naeste" aria-label="Næste annonce">›</button></div>
+    </div>`;
+  $('dock').innerHTML = `<div class="valg">
+      <button class="afvis" data-v="afvis">Afvis</button>
+      <button class="ret" data-v="ret">Ret</button>
+      <button class="godkend" data-v="godkend">Godkend</button></div>
+    <button class="sendknap" id="sendknap" hidden></button>`;
+  document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { if (format === b.dataset.f) return; format = b.dataset.f; document.querySelectorAll('[data-f]').forEach(x => x.setAttribute('aria-pressed', x === b)); $('kortet').classList.toggle('story', format === 'story'); visBillede(); forhent(); });
+  document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => beslut(b.dataset.v));
+  $('forrige').onclick = () => gaaTil((pos - 1 + alle.length) % alle.length, 'hoejre');
+  $('naeste').onclick = () => gaaTil((pos + 1) % alle.length, 'venstre');
+  $('sendknap').onclick = send;
+  swipe($('ramme'));
+  visAnnonce();
 }
 
-function scene(a) {
-  const hoved = navn => `<div class="hoved"><div class="avatar"><img class="av" alt=""></div><div class="hvem"><b>${esc(navn)}</b><span>Sponsoreret</span></div></div>`;
-  if (format === 'story') return `<div class="story"><img id="hb" alt="${esc(a.g.navn)} nr. ${esc(a.nr)} i 9:16">${hoved(D.handle)}</div>`;
-  return `<div class="post">${hoved(D.handle)}<img class="billede" id="hb" alt="${esc(a.g.navn)} nr. ${esc(a.nr)} i 4:5"><div class="cta"><span>Book nu</span><span>›</span></div></div>`;
+function visAnnonce() {
+  const a = alle[pos], s = svar[a.fil], k = $('kortet');
+  const gl = k.querySelector('.maerke'); if (gl) gl.remove();
+  if (s) {
+    const m = document.createElement('div');
+    m.className = 'maerke ' + s.beslutning;
+    m.innerHTML = `${NAVN[s.beslutning]}${s.beslutning === 'ret' ? '<button data-a="aendr">Ændr</button>' : ''}<button data-a="fortryd">Fortryd</button>`;
+    k.appendChild(m);
+    m.querySelector('[data-a="fortryd"]').onclick = () => { delete svar[a.fil]; gem(); visAnnonce(); topbar(); };
+    const ae = m.querySelector('[data-a="aendr"]'); if (ae) ae.onclick = () => aabnArk(a);
+  }
+  visBillede(); topbar(); forhent();
 }
 
-function stempel(s) {
-  return `<div class="stempel ${s.beslutning}"><b>${NAVN[s.beslutning]}</b>
-    <span class="t">${s.rettelse ? esc(s.rettelse) : ''}</span>
-    ${s.beslutning === 'ret' ? '<button id="aendr">Ændr</button>' : ''}<button id="fortryd">Fortryd</button></div>`;
+function visBillede() {
+  const a = alle[pos], id = idFor(a, format), img = $('hb');
+  img.classList.remove('klar'); img.alt = `${a.g.navn}, ${a.g.slags.toLowerCase()}, nr. ${a.nr}`;
+  billede(id).then(u => { if (u && alle[pos] === a && idFor(a, format) === id) { img.onload = () => img.classList.add('klar'); img.src = u; if (img.complete) img.classList.add('klar'); } });
 }
+
+function topbar() {
+  const n = alle.filter(a => svar[a.fil]).length;
+  $('tael').textContent = `${n}/${alle.length}`;
+  $('barfyld').style.width = (100 * n / alle.length) + '%';
+  $('grupper').innerHTML = D.grupper.map((g, gi) => {
+    const m = g.annoncer.filter(a => svar[a.fil]).length;
+    return `<button class="gruppe" data-g="${gi}" aria-current="${!faerdig && alle[pos].gi === gi}">${esc(g.navn)}, ${esc(g.slags.toLowerCase())}<small>${m}/${g.annoncer.length}</small></button>`;
+  }).join('');
+  document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+    const gi = +b.dataset.g, i = alle.findIndex(a => a.gi === gi && !svar[a.fil]);
+    const maal = i >= 0 ? i : alle.findIndex(a => a.gi === gi);
+    if (faerdig) { faerdig = false; pos = maal; tegn(); } else gaaTil(maal, maal > pos ? 'venstre' : 'hoejre');
+  });
+  const cur = $('grupper').querySelector('[aria-current="true"]');
+  if (cur) $('grupper').scrollTo({ left: cur.offsetLeft - 16, behavior: ROLIG ? 'auto' : 'smooth' });
+  const sk = $('sendknap'), nye = aendringer().length;
+  if (sk) { sk.hidden = !nye; sk.textContent = `Send ${nye} svar`; }
+}
+
+/* ---------- bevaegelse ---------- */
+
+function gaaTil(ny, retning, ud) {
+  if (travl || ny === pos) return;
+  const k = $('kortet');
+  if (ROLIG || !k) { pos = ny; return faerdig ? tegn() : visAnnonce(); }
+  travl = true;
+  k.classList.add(ud || ('ud-' + retning));
+  setTimeout(() => {
+    pos = ny;
+    k.classList.remove('ud-venstre', 'ud-hoejre', 'ud-op'); k.classList.add('ind');
+    visAnnonce();
+    requestAnimationFrame(() => requestAnimationFrame(() => { k.classList.remove('ind'); travl = false; }));
+  }, 260);
+}
+
+function swipe(el) {
+  let x0 = null, y0 = 0, dx = 0;
+  el.addEventListener('touchstart', e => { if (travl) return; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; }, { passive:true });
+  el.addEventListener('touchmove', e => {
+    if (x0 === null) return;
+    dx = e.touches[0].clientX - x0; const dy = e.touches[0].clientY - y0;
+    if (Math.abs(dy) > Math.abs(dx)) return;
+    const k = $('kortet'); k.style.transition = 'none'; k.style.transform = `translateX(${dx}px) rotate(${dx / 30}deg)`;
+  }, { passive:true });
+  el.addEventListener('touchend', () => {
+    if (x0 === null) return; x0 = null;
+    const k = $('kortet'); k.style.transition = ''; k.style.transform = '';
+    if (dx < -60) gaaTil((pos + 1) % alle.length, 'venstre');
+    else if (dx > 60) gaaTil((pos - 1 + alle.length) % alle.length, 'hoejre');
+  });
+}
+
+/* ---------- beslutninger ---------- */
 
 function beslut(v) {
+  if (travl) return;
   const a = alle[pos];
   if (v === 'ret') return aabnArk(a);
-  svar[a.fil] = { beslutning:v, rettelse:'' };
-  gem();
-  toast(v === 'godkend' ? 'Godkendt' : 'Afvist');
-  videre();
+  svar[a.fil] = { beslutning:v, rettelse:'' }; gem();
+  videre(v === 'godkend' ? 'ud-op' : 'ud-venstre');
 }
 
-function videre() {
+function videre(ud) {
   const n = alle.length;
-  for (let i = 1; i <= n; i++) { const j = (pos + i) % n; if (!svar[alle[j].fil]) { pos = j; return vis(); } }
-  faerdigVist = true; vis();
+  for (let i = 1; i <= n; i++) { const j = (pos + i) % n; if (!svar[alle[j].fil]) return gaaTil(j, 'venstre', ud); }
+  const k = $('kortet');
+  if (k && !ROLIG) { k.classList.add(ud || 'ud-op'); setTimeout(() => { faerdig = true; tegn(); }, 260); }
+  else { faerdig = true; tegn(); }
 }
 
 function aabnArk(a) {
   const s = svar[a.fil] && svar[a.fil].beslutning === 'ret' ? svar[a.fil].rettelse : '';
   let chipDel = '', tekstDel = s;
-  const m = s.match(/^([^:]+):\s*([\s\S]*)$/);
-  const erChips = x => x.split(', ').every(c => RET_CHIPS.includes(c));
-  if (m && erChips(m[1])) { chipDel = m[1]; tekstDel = m[2]; }
-  else if (s && erChips(s)) { chipDel = s; tekstDel = ''; }
+  const m = s.match(/^([^:]+):\s*([\s\S]*)$/), erChips = x => x.split(', ').every(c => RET_CHIPS.includes(c));
+  if (m && erChips(m[1])) { chipDel = m[1]; tekstDel = m[2]; } else if (s && erChips(s)) { chipDel = s; tekstDel = ''; }
   const valgte = new Set(chipDel ? chipDel.split(', ') : []);
-  const holder = document.getElementById('arkholder');
-  holder.innerHTML = `<div class="skygge" id="skygge"></div>
-    <div class="ark" role="dialog" aria-modal="true" aria-labelledby="arktitel">
-      <h2 class="serif" id="arktitel">Hvad skal rettes?</h2>
-      <div class="hvad">${esc(a.g.navn)}, ${esc(a.g.slags.toLowerCase())}, nr. ${esc(a.nr)}</div>
+  const h = $('arkholder');
+  h.innerHTML = `<div class="skygge" id="skygge"></div>
+    <div class="ark" id="ark" role="dialog" aria-modal="true" aria-label="Hvad skal rettes">
+      <div class="greb"></div>
       <div class="chips">${RET_CHIPS.map(c => `<button data-c="${c}" aria-pressed="${valgte.has(c)}">${c}</button>`).join('')}</div>
-      <textarea id="rettekst" placeholder="Skriv kort, hvad der skal ændres. Fx: gør lyset varmere, eller prisen skal stå større.">${esc(tekstDel)}</textarea>
+      <textarea id="rettekst" placeholder="Hvad skal ændres?">${esc(tekstDel)}</textarea>
       <div class="knapper"><button id="annuller">Annuller</button><button class="gem" id="gemret">Gem rettelse</button></div>
     </div>`;
-  const ta = document.getElementById('rettekst'), gemknap = document.getElementById('gemret');
-  const opdater = () => { gemknap.disabled = !ta.value.trim() && !holder.querySelector('[aria-pressed="true"]'); };
-  holder.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); opdater(); });
-  ta.oninput = opdater; opdater();
-  const luk = () => { holder.innerHTML = ''; };
-  document.getElementById('annuller').onclick = luk; document.getElementById('skygge').onclick = luk;
-  gemknap.onclick = () => {
-    const chips = [...holder.querySelectorAll('[aria-pressed="true"]')].map(b => b.dataset.c);
-    const tekst = ta.value.trim();
-    svar[a.fil] = { beslutning:'ret', rettelse:(chips.length ? chips.join(', ') + (tekst ? ': ' : '') : '') + tekst };
-    gem(); luk(); toast('Rettelse gemt'); videre();
+  requestAnimationFrame(() => { $('skygge').classList.add('vis'); $('ark').classList.add('vis'); });
+  const ta = $('rettekst'), gk = $('gemret');
+  const opd = () => { gk.disabled = !ta.value.trim() && !h.querySelector('[aria-pressed="true"]'); };
+  h.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); opd(); });
+  ta.oninput = opd; opd();
+  const luk = cb => { $('skygge').classList.remove('vis'); $('ark').classList.remove('vis'); setTimeout(() => { h.innerHTML = ''; if (cb) cb(); }, ROLIG ? 0 : 260); };
+  $('annuller').onclick = () => luk(); $('skygge').onclick = () => luk();
+  document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { document.removeEventListener('keydown', esc); luk(); } });
+  gk.onclick = () => {
+    const chips = [...h.querySelectorAll('[aria-pressed="true"]')].map(b => b.dataset.c), t = ta.value.trim();
+    svar[a.fil] = { beslutning:'ret', rettelse:(chips.length ? chips.join(', ') + (t ? ': ' : '') : '') + t }; gem();
+    luk(() => videre('ud-venstre'));
   };
-  setTimeout(() => ta.focus(), 50);
 }
 
-function aendringer() { return Object.keys(svar).filter(f => JSON.stringify(svar[f]) !== sendt[f]); }
+/* ---------- faerdig og send ---------- */
 
-function status() {
-  const besvaret = alle.filter(a => svar[a.fil]).length;
-  document.getElementById('fremdrift').textContent = `${besvaret} af ${alle.length} gennemgået`;
-  document.getElementById('barfyld').style.width = (100 * besvaret / alle.length) + '%';
-  document.getElementById('grupper').innerHTML = D.grupper.map((g, gi) => {
-    const n = g.annoncer.filter(a => svar[a.fil]).length;
-    return `<button class="gruppe" data-g="${gi}" aria-current="${!faerdigVist && alle[pos].gi === gi}">${esc(g.navn)}, ${esc(g.slags.toLowerCase())}<small>${n}/${g.annoncer.length}</small></button>`;
-  }).join('');
-  document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
-    const gi = +b.dataset.g; const i = alle.findIndex(a => a.gi === gi && !svar[a.fil]);
-    pos = i >= 0 ? i : alle.findIndex(a => a.gi === gi); faerdigVist = false; vis(); window.scrollTo({ top:0 });
-  });
-  const nye = aendringer().length;
-  document.getElementById('sendlinje').hidden = !nye || faerdigVist;
-  document.getElementById('sendtekst').textContent = `${nye} ${nye === 1 ? 'svar' : 'svar'} ikke sendt endnu`;
-  document.getElementById('sendknap').textContent = `Send ${nye} svar`;
-}
-
-function visFaerdig() {
+function tegnFaerdig(tak) {
   const t = v => alle.filter(a => svar[a.fil] && svar[a.fil].beslutning === v).length;
   const nye = aendringer().length, mangler = alle.filter(a => !svar[a.fil]).length;
-  document.getElementById('valg').hidden = true; document.getElementById('dock').hidden = true;
-  document.getElementById('main').innerHTML = `<section class="faerdig" style="grid-column:1/-1;max-width:560px">
-    <h1 class="serif">${mangler ? 'Næsten færdig' : 'Du har set dem alle'}</h1>
-    <p class="rolig" style="margin:0">${nye ? 'Tryk på knappen, så får vi dine svar og går i gang med det samme.' : 'Dine svar er sendt. Du kan stadig åbne en annonce og ændre dit svar.'}</p>
+  $('scene').innerHTML = `<div class="faerdig">
     <div class="tal"><div class="godkend"><b>${t('godkend')}</b>godkendt</div><div class="ret"><b>${t('ret')}</b>rettes</div><div class="afvis"><b>${t('afvis')}</b>afvist</div></div>
-    ${mangler ? `<p class="rolig">${mangler} annoncer mangler stadig et svar. Vælg en gruppe øverst for at se dem.</p>` : ''}
-    ${nye ? `<button class="sendstor" id="sendstor" style="width:100%;border:0;background:var(--moerk);color:#fff;font-weight:650;border-radius:14px;padding:15px;font-size:16px">Send ${nye} svar</button>` : ''}
-    <button id="igen" style="margin-top:14px;border:0;background:none;text-decoration:underline;color:var(--daempet);padding:0">Se annoncerne igen</button>
-  </section>`;
-  const sb = document.getElementById('sendstor'); if (sb) sb.onclick = send;
-  document.getElementById('igen').onclick = () => { faerdigVist = false; pos = 0; vis(); window.scrollTo({ top:0 }); };
-  status();
+    <div class="tak" id="tak">${tak || (!nye && !mangler ? 'Tak. Vi har dine svar.' : mangler ? `${mangler} mangler et svar` : '')}</div>
+    <button class="linkknap" id="igen">Se annoncerne igen</button></div>`;
+  $('dock').innerHTML = nye ? `<button class="sendknap" id="sendknap">Send ${nye} svar</button>` : '';
+  if (nye) $('sendknap').onclick = send;
+  $('igen').onclick = () => { faerdig = false; const f = alle.findIndex(a => !svar[a.fil]); pos = f < 0 ? 0 : f; tegn(); };
 }
 
 function send() {
-  const knapper = [document.getElementById('sendknap'), document.getElementById('sendstor')].filter(Boolean);
-  const liste = aendringer().map(fil => { const a = alle.find(x => x.fil === fil);
+  const k = $('sendknap'), liste = aendringer().map(fil => { const a = alle.find(x => x.fil === fil);
     return { gruppe:`${a.g.navn}, ${a.g.slags.toLowerCase()}`, nr:a.nr, fil, beslutning:svar[fil].beslutning, rettelse:svar[fil].rettelse }; });
   if (!liste.length) return;
-  knapper.forEach(k => { k.disabled = true; k.textContent = 'Sender…'; });
+  k.disabled = true; k.textContent = 'Sender…';
   post({ action:'svar', b:B, k:K, liste }).then(() => {
     liste.forEach(s => sendt[s.fil] = JSON.stringify(svar[s.fil])); gem();
-    toast(`${liste.length} svar sendt. Tak.`); vis();
-  }).catch(() => {
-    knapper.forEach(k => k.disabled = false); status();
-    toast('Svarene blev ikke sendt. Tjek din forbindelse, og prøv igen.');
-    const sb = document.getElementById('sendstor'); if (sb) sb.textContent = 'Prøv igen';
-  });
-}
-
-let tt;
-function toast(t) { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('vis'); clearTimeout(tt); tt = setTimeout(() => el.classList.remove('vis'), 1600); }
-
-function taster(e) {
-  if (document.getElementById('arkholder').innerHTML) { if (e.key === 'Escape') document.getElementById('arkholder').innerHTML = ''; return; }
-  if (e.target.closest('textarea, input')) return;
-  if (faerdigVist && !['ArrowLeft','ArrowRight'].includes(e.key)) return;
-  const k = e.key.toLowerCase();
-  if (k === 'g') beslut('godkend'); else if (k === 'r') beslut('ret'); else if (k === 'a') beslut('afvis');
-  else if (e.key === 'ArrowRight') { faerdigVist = false; pos = (pos + 1) % alle.length; vis(); }
-  else if (e.key === 'ArrowLeft') { faerdigVist = false; pos = (pos - 1 + alle.length) % alle.length; vis(); }
+    if (faerdig) tegnFaerdig('Tak. Vi har dine svar.'); else topbar();
+  }).catch(() => { k.disabled = false; k.textContent = 'Prøv at sende igen'; });
 }
 </script>
 </body>
