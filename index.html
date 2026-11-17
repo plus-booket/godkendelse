@@ -1,276 +1,393 @@
 <!DOCTYPE html>
 <html lang="da">
 <head>
-<title>Annoncer til godkendelse</title>
-<meta name="robots" content="noindex">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Annoncer til godkendelse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --flade:#F6F4EF; --kort:#FFFFFF; --tekst:#36342F; --daempet:#6E6B63; --greige:#A5A195; --offwhite:#F2F0EA; --linje:#E2DED5; --valgt:#36342F;
-          --ok:#3E6B48; --ret:#9A6B1E; --nej:#8A2B2B; }
+  :root {
+    --flade:#F6F4EF; --kort:#FFFFFF; --tekst:#36342F; --daempet:#6E6B63; --greige:#A5A195; --linje:#E2DED5; --moerk:#36342F;
+    --ok:#3E6B48; --ok-lys:#E6EFE7; --ret:#9A6B1E; --ret-lys:#F5ECDD; --nej:#8A2B2B; --nej-lys:#F5E4E2;
+    --dock-h: 88px;
+  }
   * { box-sizing:border-box; }
-  html,body { margin:0; background:var(--flade); color:var(--tekst); font:15px/1.55 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
-  .wrap { max-width:1100px; margin:0 auto; padding:32px 16px 140px; }
-  h1,h2 { font-family:'Cormorant Garamond',Georgia,serif; font-weight:700; margin:0; }
-  h1 { font-size:clamp(32px,6vw,46px); line-height:1.04; }
-  h2 { font-size:clamp(26px,4.6vw,34px); line-height:1.05; }
-  button { font:inherit; color:inherit; }
-  button:focus-visible, textarea:focus-visible { outline:3px solid var(--greige); outline-offset:2px; }
-  .lille { font-size:13px; color:var(--daempet); }
-  header.top { display:grid; gap:12px; margin-bottom:24px; }
-  header.top img.logo { width:150px; height:auto; }
-  header.top .sub { color:var(--daempet); max-width:62ch; }
-  .foer { background:var(--kort); border:1px solid var(--linje); border-radius:14px; padding:16px 20px; margin-bottom:30px; }
-  .foer h3 { margin:0 0 8px; font-size:15px; }
-  .foer ol { margin:0; padding-left:20px; } .foer li { margin:4px 0; font-size:14px; }
-  .grupper { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin:14px 0 24px; }
-  .gruppe { text-align:left; background:var(--kort); border:1.5px solid var(--linje); border-radius:12px; padding:12px 14px; cursor:pointer; }
-  .gruppe[aria-pressed="true"] { background:var(--valgt); border-color:var(--valgt); color:var(--offwhite); }
-  .gruppe .navn { font-weight:650; } .gruppe .slags { font-size:13px; opacity:.8; }
-  .grid { display:grid; grid-template-columns:minmax(0,400px) minmax(0,1fr); gap:32px; align-items:start; }
-  @media (max-width:880px) { .grid { grid-template-columns:1fr; } }
-  .valgt-navn { font-weight:650; margin-bottom:10px; }
-  .skift { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
-  .seg { display:inline-flex; background:#E9E6DE; border-radius:999px; padding:3px; }
-  .seg button { border:0; background:transparent; font-size:13px; font-weight:600; color:var(--daempet); padding:6px 13px; border-radius:999px; cursor:pointer; }
-  .seg button[aria-pressed="true"] { background:var(--kort); color:var(--tekst); box-shadow:0 1px 2px rgba(54,52,47,.12); }
-  .post { background:#fff; border:1px solid var(--linje); border-radius:12px; overflow:hidden; max-width:400px; color:#111; }
-  .post .hoved { display:flex; align-items:center; gap:10px; padding:10px 12px; }
-  .avatar { width:34px; height:34px; border-radius:50%; overflow:hidden; flex:none; background:var(--greige); }
+  html,body { margin:0; background:var(--flade); color:var(--tekst); font:15px/1.5 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+  button, textarea { font:inherit; color:inherit; }
+  button { cursor:pointer; }
+  :focus-visible { outline:3px solid var(--greige); outline-offset:2px; }
+  .serif { font-family:'Cormorant Garamond',Georgia,serif; font-weight:700; }
+  [hidden] { display:none !important; }
+
+  /* topbar */
+  .top { position:sticky; top:0; z-index:20; background:rgba(246,244,239,.94); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-bottom:1px solid var(--linje); }
+  .top .ind { max-width:1120px; margin:0 auto; padding:10px 16px 0; display:flex; align-items:center; gap:14px; }
+  .top img.logo { height:26px; width:auto; }
+  .top .titel { font-size:20px; line-height:1.1; }
+  .top .fremdrift { margin-left:auto; font-size:13px; color:var(--daempet); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .bar { height:3px; background:var(--linje); margin-top:10px; }
+  .bar i { display:block; height:100%; background:var(--moerk); width:0; transition:width .3s ease; }
+
+  .grupper { max-width:1120px; margin:0 auto; padding:12px 16px 2px; display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; }
+  .grupper::-webkit-scrollbar { display:none; }
+  .gruppe { flex:none; border:1.5px solid var(--linje); background:var(--kort); border-radius:999px; padding:7px 14px; font-size:13.5px; font-weight:600; white-space:nowrap; }
+  .gruppe small { font-weight:500; color:var(--daempet); margin-left:6px; font-variant-numeric:tabular-nums; }
+  .gruppe[aria-current="true"] { background:var(--moerk); border-color:var(--moerk); color:#fff; }
+  .gruppe[aria-current="true"] small { color:#D9D6CE; }
+
+  main { max-width:1120px; margin:0 auto; padding:14px 16px calc(var(--dock-h) + 40px); display:grid; grid-template-columns:minmax(0,1fr); gap:18px; }
+  .venstre, .info { min-width:0; }
+  @media (min-width:900px) {
+    main { grid-template-columns:minmax(0,420px) minmax(0,1fr); gap:40px; padding-top:22px; }
+    .venstre { position:sticky; top:calc(var(--hh, 140px) + 16px); align-self:start; }
+  }
+
+  .hvilken { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; }
+  .hvilken h1 { margin:0; font-size:24px; line-height:1.1; }
+  .hvilken .nr { font-size:13px; color:var(--daempet); white-space:nowrap; }
+  .format { display:inline-flex; background:#E9E6DE; border-radius:999px; padding:3px; margin-bottom:10px; }
+  .format button { border:0; background:transparent; font-size:12.5px; font-weight:600; color:var(--daempet); padding:5px 12px; border-radius:999px; }
+  .format button[aria-pressed="true"] { background:var(--kort); color:var(--tekst); box-shadow:0 1px 2px rgba(54,52,47,.12); }
+
+  .scene { position:relative; max-width:420px; }
+  .post { background:#fff; border:1px solid var(--linje); border-radius:12px; overflow:hidden; color:#111; }
+  .post .hoved { display:flex; align-items:center; gap:10px; padding:9px 12px; }
+  .avatar { width:32px; height:32px; border-radius:50%; overflow:hidden; flex:none; background:var(--greige); }
   .avatar img { width:100%; height:100%; display:block; object-fit:cover; }
-  .hvem { line-height:1.2; } .hvem .navn { font-weight:650; font-size:13.5px; } .hvem .sponsor { font-size:12px; color:#65676b; }
+  .hvem { line-height:1.2; } .hvem b { font-size:13.5px; font-weight:650; } .hvem span { display:block; font-size:12px; color:#65676b; }
   .billede { display:block; width:100%; aspect-ratio:4/5; object-fit:cover; background:#E7E3DA; }
-  .ig-cta { display:flex; justify-content:space-between; padding:11px 12px; border-bottom:1px solid #efefef; font-weight:600; font-size:13.5px; }
-  .tekst { padding:10px 12px 14px; font-size:13.5px; line-height:1.4; }
-  .fb-tekst { padding:0 12px 10px; font-size:14px; }
-  .fb-kort { display:flex; align-items:center; gap:12px; padding:11px 12px; background:#F0F2F5; }
-  .fb-kort .meta { flex:1; min-width:0; } .fb-kort .hl { font-weight:650; }
-  .fb-kort .knap { background:#E4E6EB; font-weight:650; font-size:14px; padding:8px 14px; border-radius:6px; }
-  .story { position:relative; max-width:330px; aspect-ratio:9/16; border-radius:18px; overflow:hidden; background:#222; }
-  .story img.helt { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-  .story .hoved { position:absolute; top:16px; left:10px; right:10px; display:flex; align-items:center; gap:8px; }
-  .story .hvem .navn, .story .hvem .sponsor { color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.55); }
-  .story .bund { position:absolute; left:0; right:0; bottom:18px; display:grid; justify-items:center; }
-  .story .bund .knap { background:#fff; color:#111; font-weight:650; font-size:13.5px; padding:8px 20px; border-radius:999px; }
-  .laeser { display:grid; place-items:center; color:var(--daempet); font-size:13px; }
+  .cta { display:flex; justify-content:space-between; padding:10px 12px; font-weight:600; font-size:13.5px; border-top:1px solid #efefef; }
+  .story { position:relative; aspect-ratio:9/16; max-height:72vh; border-radius:16px; overflow:hidden; background:#E7E3DA; margin:0 auto; }
+  .story img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .story .hoved { position:absolute; top:14px; left:10px; right:10px; display:flex; align-items:center; gap:8px; }
+  .story .hvem b, .story .hvem span { color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.55); }
 
-  .beslut { background:var(--kort); border:1px solid var(--linje); border-radius:14px; padding:14px; margin-top:14px; max-width:400px; }
-  .beslut .knapper { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-  .beslut .knapper button { border:1.5px solid var(--linje); background:#fff; border-radius:10px; padding:10px 6px; font-weight:650; cursor:pointer; }
-  .beslut .knapper button[data-v="godkend"][aria-pressed="true"] { background:var(--ok); border-color:var(--ok); color:#fff; }
-  .beslut .knapper button[data-v="ret"][aria-pressed="true"] { background:var(--ret); border-color:var(--ret); color:#fff; }
-  .beslut .knapper button[data-v="afvis"][aria-pressed="true"] { background:var(--nej); border-color:var(--nej); color:#fff; }
-  .beslut textarea { width:100%; min-height:84px; margin-top:10px; border:1.5px solid var(--linje); border-radius:10px; padding:10px; font:inherit; resize:vertical; }
-  .beslut .naeste { margin-top:10px; width:100%; border:0; background:none; color:var(--daempet); font-size:13px; text-decoration:underline; cursor:pointer; }
+  /* stempel paa den valgte annonce */
+  .stempel { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:12px; font-size:14px; margin-bottom:10px; max-width:420px; }
+  .stempel.godkend { background:var(--ok-lys); color:var(--ok); }
+  .stempel.ret { background:var(--ret-lys); color:var(--ret); }
+  .stempel.afvis { background:var(--nej-lys); color:var(--nej); }
+  .stempel b { font-weight:700; }
+  .stempel .t { flex:1; min-width:0; color:var(--tekst); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .stempel button { border:0; background:none; text-decoration:underline; font-size:13px; color:inherit; padding:0; }
 
-  .boks { background:var(--kort); border:1px solid var(--linje); border-radius:14px; padding:16px 18px; margin-bottom:18px; }
-  .boks h3 { margin:0 0 4px; font-size:15px; }
-  .thumbs { display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:10px; margin-top:12px; }
-  .thumb { position:relative; border:0; background:transparent; padding:0; cursor:pointer; text-align:left; }
-  .thumb .ramme { display:block; width:100%; aspect-ratio:4/5; border-radius:8px; border:2px solid transparent; background:#E7E3DA center/cover no-repeat; }
-  .thumb[aria-current="true"] .ramme { border-color:var(--tekst); }
-  .thumb span.nr { display:block; font-size:12.5px; margin-top:4px; }
-  .maerke { position:absolute; top:5px; right:5px; width:22px; height:22px; border-radius:50%; color:#fff; font-size:13px; font-weight:700; display:grid; place-items:center; }
-  .maerke.godkend { background:var(--ok); } .maerke.ret { background:var(--ret); } .maerke.afvis { background:var(--nej); }
-  .linjer { margin:6px 0 0; padding:0; list-style:none; } .linjer li { padding:5px 0; border-top:1px solid var(--linje); font-size:14px; } .linjer li:first-child { border-top:0; }
-  .aegte { background:#F1EEE6; border-radius:10px; padding:12px 14px; font-size:13.5px; margin-top:6px; }
+  .strip { display:flex; gap:8px; overflow-x:auto; padding:12px 0 4px; scrollbar-width:thin; max-width:420px; }
+  .tn { position:relative; flex:none; width:58px; border:0; padding:0; background:none; }
+  .tn span.r { display:block; width:58px; aspect-ratio:4/5; border-radius:7px; background:#E7E3DA center/cover no-repeat; border:2px solid transparent; }
+  .tn[aria-current="true"] span.r { border-color:var(--moerk); }
+  .tn em { display:block; font-style:normal; font-size:11.5px; color:var(--daempet); margin-top:2px; text-align:center; }
+  .prik { position:absolute; top:3px; right:3px; width:18px; height:18px; border-radius:50%; color:#fff; font-size:11px; font-weight:700; display:grid; place-items:center; }
+  .prik.godkend { background:var(--ok); } .prik.ret { background:var(--ret); } .prik.afvis { background:var(--nej); }
 
-  .bar { position:fixed; left:0; right:0; bottom:0; background:var(--kort); border-top:1px solid var(--linje); padding:12px 16px; box-shadow:0 -4px 16px rgba(0,0,0,.05); }
-  .bar .ind { max-width:1100px; margin:0 auto; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-  .bar .status { font-size:14px; }
-  .bar button.send { border:0; background:var(--valgt); color:var(--offwhite); font-weight:650; padding:12px 22px; border-radius:999px; cursor:pointer; }
-  .bar button.send:disabled { opacity:.45; cursor:default; }
-  .err { background:#fbeaea; border:1px solid #e6b7b7; color:#8a2b2b; border-radius:10px; padding:14px 16px; }
-  .tak { background:#EAF1EA; border:1px solid #c5d8c5; border-radius:12px; padding:16px; margin-bottom:20px; }
+  /* hoejre kolonne */
+  .info { display:grid; gap:14px; align-content:start; }
+  .kort { background:var(--kort); border:1px solid var(--linje); border-radius:14px; padding:14px 16px; }
+  .kort h2 { margin:0 0 6px; font-size:15px; font-family:inherit; font-weight:700; }
+  .linjer { margin:0; padding:0; list-style:none; }
+  .linjer li { padding:4px 0; border-top:1px solid var(--linje); font-size:14px; }
+  .linjer li:first-child { border-top:0; }
+  .rolig { font-size:13.5px; color:var(--daempet); }
+  .rolig p { margin:6px 0 0; }
+  .genvej { font-size:12.5px; color:var(--daempet); }
+  .genvej kbd { font:inherit; font-weight:600; border:1px solid var(--linje); border-bottom-width:2px; border-radius:4px; padding:0 5px; background:#fff; color:var(--tekst); }
+  @media (max-width:899px) { .genvej { display:none; } }
+
+  /* dock */
+  .dock { position:fixed; left:0; right:0; bottom:0; z-index:30; background:var(--kort); border-top:1px solid var(--linje); box-shadow:0 -6px 20px rgba(54,52,47,.08); padding:10px 12px calc(10px + env(safe-area-inset-bottom)); }
+  .dock .ind { max-width:560px; margin:0 auto; display:grid; gap:8px; }
+  .valg { display:grid; grid-template-columns:1fr 1fr 1.6fr; gap:8px; }
+  .valg button { border:1.5px solid var(--linje); background:#fff; border-radius:12px; padding:13px 6px; font-weight:650; font-size:15px; }
+  .valg .godkend { background:var(--ok); border-color:var(--ok); color:#fff; }
+  .valg .ret { color:var(--ret); }
+  .valg .afvis { color:var(--nej); }
+  .send { display:flex; align-items:center; gap:10px; }
+  .send span { flex:1; font-size:13.5px; color:var(--daempet); }
+  .send button { border:0; background:var(--moerk); color:#fff; font-weight:650; border-radius:999px; padding:10px 18px; }
+  .send button:disabled { opacity:.5; cursor:default; }
+
+  /* ark til rettelser */
+  .skygge { position:fixed; inset:0; z-index:40; background:rgba(30,28,24,.35); }
+  .ark { position:fixed; left:0; right:0; bottom:0; z-index:41; background:var(--kort); border-radius:18px 18px 0 0; padding:18px 16px calc(16px + env(safe-area-inset-bottom)); max-width:560px; margin:0 auto; box-shadow:0 -8px 30px rgba(0,0,0,.15); }
+  @media (min-width:900px) { .ark { bottom:24px; border-radius:18px; } }
+  .ark h2 { margin:0 0 4px; font-size:22px; }
+  .ark .hvad { font-size:13.5px; color:var(--daempet); margin-bottom:12px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+  .chips button { border:1.5px solid var(--linje); background:#fff; border-radius:999px; padding:7px 12px; font-size:13.5px; }
+  .chips button[aria-pressed="true"] { border-color:var(--ret); background:var(--ret-lys); color:var(--ret); font-weight:600; }
+  .ark textarea { width:100%; min-height:96px; border:1.5px solid var(--linje); border-radius:12px; padding:10px 12px; resize:vertical; }
+  .ark .knapper { display:grid; grid-template-columns:1fr 2fr; gap:8px; margin-top:12px; }
+  .ark .knapper button { border-radius:12px; padding:12px; font-weight:650; border:1.5px solid var(--linje); background:#fff; }
+  .ark .knapper .gem { background:var(--ret); border-color:var(--ret); color:#fff; }
+  .ark .knapper .gem:disabled { opacity:.5; cursor:default; }
+
+  /* faerdig */
+  .faerdig { text-align:left; }
+  .faerdig h1 { font-size:34px; margin:0 0 8px; line-height:1.05; }
+  .tal { display:flex; gap:10px; margin:14px 0; flex-wrap:wrap; }
+  .tal div { flex:1; min-width:90px; border-radius:12px; padding:10px 12px; }
+  .tal b { display:block; font-size:24px; font-variant-numeric:tabular-nums; }
+  .tal .godkend { background:var(--ok-lys); color:var(--ok); } .tal .ret { background:var(--ret-lys); color:var(--ret); } .tal .afvis { background:var(--nej-lys); color:var(--nej); }
+
+  .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(var(--dock-h) + 30px); z-index:50; background:var(--moerk); color:#fff; padding:9px 16px; border-radius:999px; font-size:13.5px; opacity:0; transition:opacity .2s; pointer-events:none; white-space:nowrap; }
+  .toast.vis { opacity:1; }
+  .laeser { min-height:60vh; display:grid; place-items:center; color:var(--daempet); }
+  .fejl { max-width:560px; margin:40px auto; background:var(--nej-lys); color:var(--nej); border-radius:12px; padding:14px 16px; }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; scroll-behavior:auto !important; } }
 </style>
 </head>
 <body>
-<div class="wrap" id="app"><div class="laeser" style="min-height:60vh">Henter dine annoncer…</div></div>
-<div class="bar" id="bar" hidden><div class="ind"><div class="status" id="status"></div><button class="send" id="send" disabled>Send mine svar</button></div></div>
+<div id="app"><div class="laeser">Henter dine annoncer…</div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwkwR3CmhXosKJdurlSGU6qez9QPUMZDjan8XRtgwWRGRdUuttxj9iSgRPU55NPaWpP/exec';
 const QS = new URLSearchParams(location.search);
-const BOOT = QS.get('b') && QS.get('k') ? { b: QS.get('b'), k: QS.get('k') } : { fejl: 'Linket virker ikke. Skriv til os, så sender vi et nyt.' };
+const B = QS.get('b'), K = QS.get('k');
+const LAGER = 'pb-godkend-' + B;
+const RET_CHIPS = ['Lyset', 'Teksten', 'Prisen', 'Huden', 'Personen', 'Logoet', 'Beskæringen'];
+const NAVN = { godkend:'Godkendt', ret:'Rettes', afvis:'Afvist' };
+const SERVER = { 'Godkendt':'godkend', 'Til rettelse':'ret', 'Afvist':'afvis' };
+
+const app = document.getElementById('app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let D, alle = [], pos = 0, format = 'feed', faerdigVist = false;
+const svar = {}, sendt = {}, billeder = {}, venter = {};
+
 async function api(params) {
-  const r = await fetch(API + '?' + new URLSearchParams(params), { credentials: 'omit' });
+  const r = await fetch(API + '?' + new URLSearchParams(params), { credentials:'omit' });
   const j = await r.json(); if (!j.ok) throw new Error(j.error || 'fejl'); return j;
 }
 async function post(body) {
-  const r = await fetch(API, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+  const r = await fetch(API, { method:'POST', credentials:'omit', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(body) });
   const j = await r.json(); if (!j.ok) throw new Error(j.error || 'fejl'); return j;
 }
-const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const app = document.getElementById('app');
-let D, state = { gruppe:0, annonce:0, platform:'instagram', format:'feed' };
-const svar = {};          // fil -> {beslutning, rettelse}
-const sendt = {};         // fil -> json af sidst sendte svar
-const billeder = {};      // fileId -> dataURL
-const venter = {};        // fileId -> [callbacks]
-
-if (BOOT.fejl) { app.innerHTML = '<div class="err">' + esc(BOOT.fejl) + '</div>'; }
-else {
-  api({ api: 'batch', b: BOOT.b, k: BOOT.k }).then(j => start(j.data)).catch(fejl);
-}
-
-function fejl(e) { app.innerHTML = '<div class="err">Noget gik galt: ' + esc(e && e.message || e) + '. Prøv at genindlæse siden.</div>'; }
-
 function billede(id, cb) {
   if (!id) return;
   if (billeder[id]) return cb(billeder[id]);
   if (venter[id]) return venter[id].push(cb);
   venter[id] = [cb];
-  api({ api: 'billede', b: BOOT.b, k: BOOT.k, id }).then(j => { billeder[id] = j.url; venter[id].forEach(f => f(j.url)); delete venter[id]; })
-    .catch(() => delete venter[id]);
+  api({ api:'billede', b:B, k:K, id }).then(j => { billeder[id] = j.url; venter[id].forEach(f => f(j.url)); delete venter[id]; }).catch(() => delete venter[id]);
 }
+function forhent(i) { const a = alle[i]; if (a) { billede(a.feed, () => {}); } }
+
+if (!B || !K) app.innerHTML = '<div class="fejl">Linket mangler en del. Skriv til os, så sender vi et nyt.</div>';
+else api({ api:'batch', b:B, k:K }).then(j => start(j.data)).catch(e => {
+  app.innerHTML = '<div class="fejl">Annoncerne kunne ikke hentes. Tjek din forbindelse, og genindlæs siden.</div>';
+});
 
 function start(data) {
   D = data;
+  D.grupper.forEach((g, gi) => g.annoncer.forEach(a => alle.push(Object.assign({}, a, { gi, g }))));
   Object.keys(D.svar || {}).forEach(fil => {
-    const s = D.svar[fil];
-    const v = { 'Godkendt':'godkend', 'Til rettelse':'ret', 'Afvist':'afvis' }[s.beslutning];
-    if (v) { svar[fil] = { beslutning:v, rettelse:s.rettelse || '' }; sendt[fil] = JSON.stringify(svar[fil]); }
+    const v = SERVER[D.svar[fil].beslutning];
+    if (v) { svar[fil] = { beslutning:v, rettelse:D.svar[fil].rettelse || '' }; sendt[fil] = JSON.stringify(svar[fil]); }
   });
-  const antal = D.grupper.reduce((n, g) => n + g.annoncer.length, 0);
+  try { const gemt = JSON.parse(localStorage.getItem(LAGER) || '{}'); Object.assign(svar, gemt); } catch (e) {}
+  const foerste = alle.findIndex(a => !svar[a.fil]);
+  pos = foerste < 0 ? 0 : foerste;
+  skelet();
+  vis();
+  document.addEventListener('keydown', taster);
+}
+
+function gem() {
+  const kladde = {}; Object.keys(svar).forEach(f => { if (JSON.stringify(svar[f]) !== sendt[f]) kladde[f] = svar[f]; });
+  try { localStorage.setItem(LAGER, JSON.stringify(kladde)); } catch (e) {}
+}
+
+function skelet() {
   app.innerHTML = `
-    <header class="top">
-      <img class="logo" id="logo" alt="${esc(D.klinik)}" hidden>
-      <h1>Dine annoncer til godkendelse</h1>
-      <div class="sub">${antal} annoncer. Hver findes i to formater: 4:5 til feedet og 9:16 til stories og reels.
-        Tryk på <b>Godkend</b>, <b>Ret</b> eller <b>Afvis</b> under hver annonce, og send dine svar nederst, når du er klar. Du kan godt sende nogle nu og resten senere.</div>
+    <header class="top"><div class="ind">
+        <img class="logo" id="logo" alt="${esc(D.klinik)}" hidden>
+        <div class="titel serif" id="titel">${esc(D.klinik)}</div>
+        <div class="fremdrift" id="fremdrift"></div>
+      </div>
+      <nav class="grupper" id="grupper" aria-label="Grupper"></nav>
+      <div class="bar"><i id="barfyld"></i></div>
     </header>
-    <div id="tak"></div>
-    <div class="foer"><h3>Godt at vide</h3><ol>
-      <li>Vil du have noget ændret, så tryk på <b>Ret</b> og skriv, hvad der skal ændres. Fx “gør lyset varmere” eller “prisen skal stå større”.</li>
-      <li>Annoncerne går først live, når du har godkendt dem.</li></ol></div>
-    <h2>Annoncer</h2>
-    <div class="grupper" id="grupper"></div>
-    <div class="grid">
-      <section><div class="valgt-navn" id="valgt-navn"></div><div class="skift" id="skift"></div><div id="visning"></div><div class="beslut" id="beslut"></div></section>
-      <section><div class="boks"><h3 id="gruppe-titel"></h3><div class="lille">Tryk på en annonce for at se den stor.</div><div class="thumbs" id="thumbs"></div></div>
-      <div class="boks" id="tekster"></div></section>
-    </div>`;
-  if (D.logo) billede(D.logo, u => { const l = document.getElementById('logo'); l.src = u; l.hidden = false; });
-  document.getElementById('bar').hidden = false;
-  document.getElementById('send').onclick = send;
-  alt();
+    <main id="main"></main>
+    <div class="dock" id="dock"><div class="ind">
+      <div class="send" id="sendlinje" hidden><span id="sendtekst"></span><button id="sendknap">Send svar</button></div>
+      <div class="valg" id="valg">
+        <button class="afvis" data-v="afvis">Afvis</button>
+        <button class="ret" data-v="ret">Ret</button>
+        <button class="godkend" data-v="godkend">Godkend</button>
+      </div>
+    </div></div>
+    <div id="arkholder"></div>`;
+  if (D.logo) billede(D.logo, u => { const l = document.getElementById('logo'); l.src = u; l.hidden = false; document.getElementById('titel').hidden = true; });
+  document.querySelectorAll('#valg button').forEach(b => b.onclick = () => beslut(b.dataset.v));
+  document.getElementById('sendknap').onclick = send;
 }
 
-const G = () => D.grupper[state.gruppe];
-const A = () => G().annoncer[state.annonce];
-
-function visGrupper() {
-  document.getElementById('grupper').innerHTML = D.grupper.map((g, i) => {
-    const besvaret = g.annoncer.filter(a => svar[a.fil]).length;
-    return `<button class="gruppe" aria-pressed="${i === state.gruppe}" data-i="${i}"><div class="navn">${esc(g.navn)}</div>
-      <div class="slags">${esc(g.slags)}, ${besvaret} af ${g.annoncer.length} besvaret</div></button>`; }).join('');
-  document.querySelectorAll('.gruppe').forEach(b => b.onclick = () => { state.gruppe = +b.dataset.i; state.annonce = 0; alt(); });
-}
-
-function visSkift() {
-  const seg = (navn, valg) => `<div class="seg">${valg.map(([v, t]) => `<button data-${navn}="${v}" aria-pressed="${state[navn] === v}">${t}</button>`).join('')}</div>`;
-  const el = document.getElementById('skift');
-  el.innerHTML = seg('platform', [['instagram','Instagram'],['facebook','Facebook']]) + seg('format', [['feed','Feed 4:5'],['story','Stories og reels 9:16']]);
-  el.querySelectorAll('[data-platform]').forEach(b => b.onclick = () => { state.platform = b.dataset.platform; visSkift(); visAnnonce(); });
-  el.querySelectorAll('[data-format]').forEach(b => b.onclick = () => { state.format = b.dataset.format; visSkift(); visAnnonce(); });
-}
-
-function visAnnonce() {
-  const g = G(), a = A(), ig = state.platform === 'instagram';
-  const navn = ig ? D.handle : D.fbnavn;
-  document.getElementById('valgt-navn').textContent = `${g.navn}, ${g.slags.toLowerCase()}, nr. ${a.nr}`;
-  const av = `<div class="avatar"><img class="av" alt=""></div>`;
-  const hoved = `<div class="hoved">${av}<div class="hvem"><div class="navn">${esc(navn)}</div><div class="sponsor">Sponsoreret</div></div></div>`;
-  const id = state.format === 'story' ? a.story : a.feed;
-  let html;
-  if (state.format === 'story') html = `<div class="story"><img class="helt" id="hovedbillede" alt="">${hoved}<div class="bund"><span class="knap">Book nu</span></div></div>`;
-  else if (ig) html = `<div class="post">${hoved}<img class="billede" id="hovedbillede" alt=""><div class="ig-cta"><span>Book nu</span><span>›</span></div>
-      <div class="tekst"><b>${esc(D.handle)}</b> ${esc(String(g.opslag || '').slice(0, 80))}<span class="lille">… mere</span></div></div>`;
-  else html = `<div class="post">${hoved}<div class="fb-tekst">${esc(g.opslag)}</div><img class="billede" id="hovedbillede" alt="">
-      <div class="fb-kort"><div class="meta"><div class="lille">${esc(D.klinik)}${D.by ? ', ' + esc(D.by) : ''}</div><div class="hl">${esc(g.fb)}</div></div><div class="knap">Book nu</div></div></div>`;
-  document.getElementById('visning').innerHTML = html;
-  billede(id, u => { const el = document.getElementById('hovedbillede'); if (el && (state.format === 'story' ? A().story : A().feed) === id) el.src = u; });
+function vis() {
+  if (faerdigVist) return visFaerdig();
+  const a = alle[pos], g = a.g, s = svar[a.fil];
+  const iGruppe = g.annoncer.indexOf(g.annoncer.find(x => x.fil === a.fil));
+  document.getElementById('valg').hidden = false; document.getElementById('dock').hidden = false;
+  document.getElementById('main').innerHTML = `
+    <section class="venstre">
+      <div class="hvilken"><h1 class="serif">${esc(g.navn)}</h1><span class="nr">${esc(g.slags)}, nr. ${esc(a.nr)}</span></div>
+      <div class="format" role="group" aria-label="Format">
+        <button data-f="feed" aria-pressed="${format === 'feed'}">Feed 4:5</button>
+        <button data-f="story" aria-pressed="${format === 'story'}">Story 9:16</button>
+      </div>
+      ${s ? stempel(s) : ''}<div class="scene">${scene(a)}</div>
+      <div class="strip" id="strip">${g.annoncer.map((x, i) => {
+        const sx = svar[x.fil], gi = alle.findIndex(y => y.fil === x.fil);
+        return `<button class="tn" data-i="${gi}" aria-current="${x.fil === a.fil}" aria-label="Nr. ${esc(x.nr)}${sx ? ', ' + NAVN[sx.beslutning] : ''}">
+          <span class="r" data-id="${x.feed}"></span>${sx ? `<span class="prik ${sx.beslutning}">${{godkend:'✓',ret:'!',afvis:'×'}[sx.beslutning]}</span>` : ''}<em>${esc(x.nr)}</em></button>`;
+      }).join('')}</div>
+    </section>
+    <section class="info">
+      <div class="kort"><h2>Teksten på billedet</h2><ul class="linjer">${g.billedtekst.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>
+      ${g.opslag ? `<div class="kort"><h2>Tekst over billedet</h2><p class="rolig" style="margin:0">${esc(g.opslag)}</p></div>` : ''}
+      <div class="kort rolig"><h2 style="color:var(--tekst)">Godt at vide</h2>
+        ${g.aegte ? `<p>${esc(g.aegte)}</p>` : ''}
+        <p>Intet går live, før du har godkendt det. Du kan sende dine svar, når du vil, og ændre dem bagefter.</p></div>
+      <p class="genvej">Tastatur: <kbd>G</kbd> godkend, <kbd>R</kbd> ret, <kbd>A</kbd> afvis, <kbd>←</kbd> <kbd>→</kbd> skift annonce.</p>
+    </section>`;
+  document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { format = b.dataset.f; vis(); });
+  document.querySelectorAll('.tn').forEach(b => { b.onclick = () => { pos = +b.dataset.i; vis(); };
+    const r = b.querySelector('.r'); billede(r.dataset.id, u => r.style.backgroundImage = `url("${u}")`); });
+  const fortryd = document.getElementById('fortryd'); if (fortryd) fortryd.onclick = () => { delete svar[a.fil]; gem(); vis(); };
+  const aendr = document.getElementById('aendr'); if (aendr) aendr.onclick = () => aabnArk(a);
+  const id = format === 'story' ? a.story : a.feed;
+  billede(id, u => { const el = document.getElementById('hb'); if (el && alle[pos].fil === a.fil) el.src = u; });
   if (D.avatar) billede(D.avatar, u => document.querySelectorAll('img.av').forEach(i => i.src = u));
-  visBeslut();
+  const strip = document.getElementById('strip'), cur = strip.querySelector('.tn[aria-current="true"]');
+  if (cur) strip.scrollLeft = cur.offsetLeft - strip.offsetLeft - strip.clientWidth / 2 + cur.clientWidth / 2;
+  const top = document.querySelector('.top'); if (top) document.documentElement.style.setProperty('--hh', top.offsetHeight + 'px');
+  forhent(pos + 1); forhent(pos + 2);
+  status();
 }
 
-function visBeslut() {
-  const a = A(), s = svar[a.fil] || {};
-  const el = document.getElementById('beslut');
-  el.innerHTML = `<div class="knapper">
-      <button data-v="godkend" aria-pressed="${s.beslutning === 'godkend'}">Godkend</button>
-      <button data-v="ret" aria-pressed="${s.beslutning === 'ret'}">Ret</button>
-      <button data-v="afvis" aria-pressed="${s.beslutning === 'afvis'}">Afvis</button></div>
-    ${s.beslutning === 'ret' || s.beslutning === 'afvis' ? `<textarea id="rettelse" placeholder="${s.beslutning === 'ret' ? 'Hvad skal ændres? Skriv også, hvis det kun gælder 9:16.' : 'Vil du skrive hvorfor? (frivilligt)'}">${esc(s.rettelse || '')}</textarea>` : ''}
-    <button class="naeste" id="naeste">Næste annonce</button>`;
-  el.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
-    const v = b.dataset.v;
-    if (s.beslutning === v) delete svar[a.fil]; else svar[a.fil] = { beslutning:v, rettelse:(svar[a.fil] || {}).rettelse || '' };
-    visBeslut(); visThumbs(); visGrupper(); visStatus();
-    if (v !== 'godkend' && svar[a.fil]) document.getElementById('rettelse').focus();
-  });
-  const ta = document.getElementById('rettelse');
-  if (ta) ta.oninput = () => { svar[a.fil].rettelse = ta.value; visStatus(); };
-  document.getElementById('naeste').onclick = naeste;
+function scene(a) {
+  const hoved = navn => `<div class="hoved"><div class="avatar"><img class="av" alt=""></div><div class="hvem"><b>${esc(navn)}</b><span>Sponsoreret</span></div></div>`;
+  if (format === 'story') return `<div class="story"><img id="hb" alt="${esc(a.g.navn)} nr. ${esc(a.nr)} i 9:16">${hoved(D.handle)}</div>`;
+  return `<div class="post">${hoved(D.handle)}<img class="billede" id="hb" alt="${esc(a.g.navn)} nr. ${esc(a.nr)} i 4:5"><div class="cta"><span>Book nu</span><span>›</span></div></div>`;
 }
 
-function naeste() {
-  if (state.annonce < G().annoncer.length - 1) state.annonce++;
-  else if (state.gruppe < D.grupper.length - 1) { state.gruppe++; state.annonce = 0; }
-  alt();
-  document.getElementById('valgt-navn').scrollIntoView({ behavior:'smooth', block:'start' });
+function stempel(s) {
+  return `<div class="stempel ${s.beslutning}"><b>${NAVN[s.beslutning]}</b>
+    <span class="t">${s.rettelse ? esc(s.rettelse) : ''}</span>
+    ${s.beslutning === 'ret' ? '<button id="aendr">Ændr</button>' : ''}<button id="fortryd">Fortryd</button></div>`;
 }
 
-function visThumbs() {
-  const g = G();
-  document.getElementById('gruppe-titel').textContent = `${g.navn}, ${g.slags.toLowerCase()}`;
-  const tegn = { godkend:'✓', ret:'!', afvis:'×' };
-  document.getElementById('thumbs').innerHTML = g.annoncer.map((a, i) => {
-    const s = svar[a.fil];
-    return `<button class="thumb" aria-current="${i === state.annonce}" data-i="${i}"><span class="ramme" data-id="${a.feed}"></span>
-      ${s ? `<span class="maerke ${s.beslutning}">${tegn[s.beslutning]}</span>` : ''}<span class="nr">Nr. ${a.nr}</span></button>`; }).join('');
-  document.querySelectorAll('.thumb').forEach(b => {
-    b.onclick = () => { state.annonce = +b.dataset.i; visThumbs(); visAnnonce();
-      if (innerWidth < 880) document.getElementById('valgt-navn').scrollIntoView({ behavior:'smooth', block:'start' }); };
-    const r = b.querySelector('.ramme'); billede(r.dataset.id, u => r.style.backgroundImage = `url("${u}")`);
-  });
+function beslut(v) {
+  const a = alle[pos];
+  if (v === 'ret') return aabnArk(a);
+  svar[a.fil] = { beslutning:v, rettelse:'' };
+  gem();
+  toast(v === 'godkend' ? 'Godkendt' : 'Afvist');
+  videre();
 }
 
-function visTekster() {
-  const g = G();
-  document.getElementById('tekster').innerHTML = `<h3>Teksten på billederne</h3><ul class="linjer">${g.billedtekst.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
-    ${g.opslag ? `<h3 style="margin-top:18px">Eksempel på tekst over billedet</h3><ul class="linjer"><li>${esc(g.opslag)}</li><li>Knap: Book nu</li></ul>` : ''}
-    ${g.aegte ? `<h3 style="margin-top:18px">Hvad er ægte</h3><div class="aegte">${esc(g.aegte)}</div>` : ''}`;
+function videre() {
+  const n = alle.length;
+  for (let i = 1; i <= n; i++) { const j = (pos + i) % n; if (!svar[alle[j].fil]) { pos = j; return vis(); } }
+  faerdigVist = true; vis();
+}
+
+function aabnArk(a) {
+  const s = svar[a.fil] && svar[a.fil].beslutning === 'ret' ? svar[a.fil].rettelse : '';
+  let chipDel = '', tekstDel = s;
+  const m = s.match(/^([^:]+):\s*([\s\S]*)$/);
+  const erChips = x => x.split(', ').every(c => RET_CHIPS.includes(c));
+  if (m && erChips(m[1])) { chipDel = m[1]; tekstDel = m[2]; }
+  else if (s && erChips(s)) { chipDel = s; tekstDel = ''; }
+  const valgte = new Set(chipDel ? chipDel.split(', ') : []);
+  const holder = document.getElementById('arkholder');
+  holder.innerHTML = `<div class="skygge" id="skygge"></div>
+    <div class="ark" role="dialog" aria-modal="true" aria-labelledby="arktitel">
+      <h2 class="serif" id="arktitel">Hvad skal rettes?</h2>
+      <div class="hvad">${esc(a.g.navn)}, ${esc(a.g.slags.toLowerCase())}, nr. ${esc(a.nr)}</div>
+      <div class="chips">${RET_CHIPS.map(c => `<button data-c="${c}" aria-pressed="${valgte.has(c)}">${c}</button>`).join('')}</div>
+      <textarea id="rettekst" placeholder="Skriv kort, hvad der skal ændres. Fx: gør lyset varmere, eller prisen skal stå større.">${esc(tekstDel)}</textarea>
+      <div class="knapper"><button id="annuller">Annuller</button><button class="gem" id="gemret">Gem rettelse</button></div>
+    </div>`;
+  const ta = document.getElementById('rettekst'), gemknap = document.getElementById('gemret');
+  const opdater = () => { gemknap.disabled = !ta.value.trim() && !holder.querySelector('[aria-pressed="true"]'); };
+  holder.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); opdater(); });
+  ta.oninput = opdater; opdater();
+  const luk = () => { holder.innerHTML = ''; };
+  document.getElementById('annuller').onclick = luk; document.getElementById('skygge').onclick = luk;
+  gemknap.onclick = () => {
+    const chips = [...holder.querySelectorAll('[aria-pressed="true"]')].map(b => b.dataset.c);
+    const tekst = ta.value.trim();
+    svar[a.fil] = { beslutning:'ret', rettelse:(chips.length ? chips.join(', ') + (tekst ? ': ' : '') : '') + tekst };
+    gem(); luk(); toast('Rettelse gemt'); videre();
+  };
+  setTimeout(() => ta.focus(), 50);
 }
 
 function aendringer() { return Object.keys(svar).filter(f => JSON.stringify(svar[f]) !== sendt[f]); }
 
-function visStatus() {
-  const total = D.grupper.reduce((n, g) => n + g.annoncer.length, 0);
-  const besvaret = Object.keys(svar).length, nye = aendringer().length;
-  const manglerTekst = aendringer().some(f => svar[f].beslutning === 'ret' && !String(svar[f].rettelse).trim());
-  document.getElementById('status').textContent = manglerTekst ? 'Skriv, hvad der skal rettes, før du sender.' :
-    `${besvaret} af ${total} besvaret` + (nye ? `, ${nye} ikke sendt endnu` : '');
-  document.getElementById('send').disabled = !nye || manglerTekst;
+function status() {
+  const besvaret = alle.filter(a => svar[a.fil]).length;
+  document.getElementById('fremdrift').textContent = `${besvaret} af ${alle.length} gennemgået`;
+  document.getElementById('barfyld').style.width = (100 * besvaret / alle.length) + '%';
+  document.getElementById('grupper').innerHTML = D.grupper.map((g, gi) => {
+    const n = g.annoncer.filter(a => svar[a.fil]).length;
+    return `<button class="gruppe" data-g="${gi}" aria-current="${!faerdigVist && alle[pos].gi === gi}">${esc(g.navn)}, ${esc(g.slags.toLowerCase())}<small>${n}/${g.annoncer.length}</small></button>`;
+  }).join('');
+  document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+    const gi = +b.dataset.g; const i = alle.findIndex(a => a.gi === gi && !svar[a.fil]);
+    pos = i >= 0 ? i : alle.findIndex(a => a.gi === gi); faerdigVist = false; vis(); window.scrollTo({ top:0 });
+  });
+  const nye = aendringer().length;
+  document.getElementById('sendlinje').hidden = !nye || faerdigVist;
+  document.getElementById('sendtekst').textContent = `${nye} ${nye === 1 ? 'svar' : 'svar'} ikke sendt endnu`;
+  document.getElementById('sendknap').textContent = `Send ${nye} svar`;
+}
+
+function visFaerdig() {
+  const t = v => alle.filter(a => svar[a.fil] && svar[a.fil].beslutning === v).length;
+  const nye = aendringer().length, mangler = alle.filter(a => !svar[a.fil]).length;
+  document.getElementById('valg').hidden = true; document.getElementById('dock').hidden = true;
+  document.getElementById('main').innerHTML = `<section class="faerdig" style="grid-column:1/-1;max-width:560px">
+    <h1 class="serif">${mangler ? 'Næsten færdig' : 'Du har set dem alle'}</h1>
+    <p class="rolig" style="margin:0">${nye ? 'Tryk på knappen, så får vi dine svar og går i gang med det samme.' : 'Dine svar er sendt. Du kan stadig åbne en annonce og ændre dit svar.'}</p>
+    <div class="tal"><div class="godkend"><b>${t('godkend')}</b>godkendt</div><div class="ret"><b>${t('ret')}</b>rettes</div><div class="afvis"><b>${t('afvis')}</b>afvist</div></div>
+    ${mangler ? `<p class="rolig">${mangler} annoncer mangler stadig et svar. Vælg en gruppe øverst for at se dem.</p>` : ''}
+    ${nye ? `<button class="sendstor" id="sendstor" style="width:100%;border:0;background:var(--moerk);color:#fff;font-weight:650;border-radius:14px;padding:15px;font-size:16px">Send ${nye} svar</button>` : ''}
+    <button id="igen" style="margin-top:14px;border:0;background:none;text-decoration:underline;color:var(--daempet);padding:0">Se annoncerne igen</button>
+  </section>`;
+  const sb = document.getElementById('sendstor'); if (sb) sb.onclick = send;
+  document.getElementById('igen').onclick = () => { faerdigVist = false; pos = 0; vis(); window.scrollTo({ top:0 }); };
+  status();
 }
 
 function send() {
-  const btn = document.getElementById('send');
-  const liste = aendringer().map(fil => {
-    let gr, an; D.grupper.forEach(g => g.annoncer.forEach(a => { if (a.fil === fil) { gr = g; an = a; } }));
-    return { gruppe:`${gr.navn}, ${gr.slags.toLowerCase()}`, nr:an.nr, fil:fil, beslutning:svar[fil].beslutning, rettelse:svar[fil].rettelse };
+  const knapper = [document.getElementById('sendknap'), document.getElementById('sendstor')].filter(Boolean);
+  const liste = aendringer().map(fil => { const a = alle.find(x => x.fil === fil);
+    return { gruppe:`${a.g.navn}, ${a.g.slags.toLowerCase()}`, nr:a.nr, fil, beslutning:svar[fil].beslutning, rettelse:svar[fil].rettelse }; });
+  if (!liste.length) return;
+  knapper.forEach(k => { k.disabled = true; k.textContent = 'Sender…'; });
+  post({ action:'svar', b:B, k:K, liste }).then(() => {
+    liste.forEach(s => sendt[s.fil] = JSON.stringify(svar[s.fil])); gem();
+    toast(`${liste.length} svar sendt. Tak.`); vis();
+  }).catch(() => {
+    knapper.forEach(k => k.disabled = false); status();
+    toast('Svarene blev ikke sendt. Tjek din forbindelse, og prøv igen.');
+    const sb = document.getElementById('sendstor'); if (sb) sb.textContent = 'Prøv igen';
   });
-  btn.disabled = true; btn.textContent = 'Sender…';
-  post({ action: 'svar', b: BOOT.b, k: BOOT.k, liste }).then(() => {
-    liste.forEach(s => sendt[s.fil] = JSON.stringify(svar[s.fil]));
-    btn.textContent = 'Send mine svar'; visStatus();
-    document.getElementById('tak').innerHTML = `<div class="tak"><b>Tak, dine svar er sendt.</b> Vi går i gang med det samme og vender tilbage, hvis noget er uklart.</div>`;
-    document.getElementById('tak').scrollIntoView({ behavior:'smooth' });
-  }).catch(e => { btn.textContent = 'Send mine svar'; visStatus(); document.getElementById('status').textContent = 'Det lykkedes ikke at sende. Prøv igen om lidt.'; });
 }
 
-function alt() { visGrupper(); visSkift(); visAnnonce(); visThumbs(); visTekster(); visStatus(); }
+let tt;
+function toast(t) { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('vis'); clearTimeout(tt); tt = setTimeout(() => el.classList.remove('vis'), 1600); }
+
+function taster(e) {
+  if (document.getElementById('arkholder').innerHTML) { if (e.key === 'Escape') document.getElementById('arkholder').innerHTML = ''; return; }
+  if (e.target.closest('textarea, input')) return;
+  if (faerdigVist && !['ArrowLeft','ArrowRight'].includes(e.key)) return;
+  const k = e.key.toLowerCase();
+  if (k === 'g') beslut('godkend'); else if (k === 'r') beslut('ret'); else if (k === 'a') beslut('afvis');
+  else if (e.key === 'ArrowRight') { faerdigVist = false; pos = (pos + 1) % alle.length; vis(); }
+  else if (e.key === 'ArrowLeft') { faerdigVist = false; pos = (pos - 1 + alle.length) % alle.length; vis(); }
+}
 </script>
 </body>
 </html>
