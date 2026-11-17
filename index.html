@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<title>Annoncer til godkendelse</title>
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --flade:#F6F4EF; --kort:#FFFFFF; --tekst:#36342F; --daempet:#6E6B63; --greige:#A5A195; --offwhite:#F2F0EA; --linje:#E2DED5; --valgt:#36342F;
+          --ok:#3E6B48; --ret:#9A6B1E; --nej:#8A2B2B; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--flade); color:var(--tekst); font:15px/1.55 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1100px; margin:0 auto; padding:32px 16px 140px; }
+  h1,h2 { font-family:'Cormorant Garamond',Georgia,serif; font-weight:700; margin:0; }
+  h1 { font-size:clamp(32px,6vw,46px); line-height:1.04; }
+  h2 { font-size:clamp(26px,4.6vw,34px); line-height:1.05; }
+  button { font:inherit; color:inherit; }
+  button:focus-visible, textarea:focus-visible { outline:3px solid var(--greige); outline-offset:2px; }
+  .lille { font-size:13px; color:var(--daempet); }
+  header.top { display:grid; gap:12px; margin-bottom:24px; }
+  header.top img.logo { width:150px; height:auto; }
+  header.top .sub { color:var(--daempet); max-width:62ch; }
+  .foer { background:var(--kort); border:1px solid var(--linje); border-radius:14px; padding:16px 20px; margin-bottom:30px; }
+  .foer h3 { margin:0 0 8px; font-size:15px; }
+  .foer ol { margin:0; padding-left:20px; } .foer li { margin:4px 0; font-size:14px; }
+  .grupper { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin:14px 0 24px; }
+  .gruppe { text-align:left; background:var(--kort); border:1.5px solid var(--linje); border-radius:12px; padding:12px 14px; cursor:pointer; }
+  .gruppe[aria-pressed="true"] { background:var(--valgt); border-color:var(--valgt); color:var(--offwhite); }
+  .gruppe .navn { font-weight:650; } .gruppe .slags { font-size:13px; opacity:.8; }
+  .grid { display:grid; grid-template-columns:minmax(0,400px) minmax(0,1fr); gap:32px; align-items:start; }
+  @media (max-width:880px) { .grid { grid-template-columns:1fr; } }
+  .valgt-navn { font-weight:650; margin-bottom:10px; }
+  .skift { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
+  .seg { display:inline-flex; background:#E9E6DE; border-radius:999px; padding:3px; }
+  .seg button { border:0; background:transparent; font-size:13px; font-weight:600; color:var(--daempet); padding:6px 13px; border-radius:999px; cursor:pointer; }
+  .seg button[aria-pressed="true"] { background:var(--kort); color:var(--tekst); box-shadow:0 1px 2px rgba(54,52,47,.12); }
+  .post { background:#fff; border:1px solid var(--linje); border-radius:12px; overflow:hidden; max-width:400px; color:#111; }
+  .post .hoved { display:flex; align-items:center; gap:10px; padding:10px 12px; }
+  .avatar { width:34px; height:34px; border-radius:50%; overflow:hidden; flex:none; background:var(--greige); }
+  .avatar img { width:100%; height:100%; display:block; object-fit:cover; }
+  .hvem { line-height:1.2; } .hvem .navn { font-weight:650; font-size:13.5px; } .hvem .sponsor { font-size:12px; color:#65676b; }
+  .billede { display:block; width:100%; aspect-ratio:4/5; object-fit:cover; background:#E7E3DA; }
+  .ig-cta { display:flex; justify-content:space-between; padding:11px 12px; border-bottom:1px solid #efefef; font-weight:600; font-size:13.5px; }
+  .tekst { padding:10px 12px 14px; font-size:13.5px; line-height:1.4; }
+  .fb-tekst { padding:0 12px 10px; font-size:14px; }
+  .fb-kort { display:flex; align-items:center; gap:12px; padding:11px 12px; background:#F0F2F5; }
+  .fb-kort .meta { flex:1; min-width:0; } .fb-kort .hl { font-weight:650; }
+  .fb-kort .knap { background:#E4E6EB; font-weight:650; font-size:14px; padding:8px 14px; border-radius:6px; }
+  .story { position:relative; max-width:330px; aspect-ratio:9/16; border-radius:18px; overflow:hidden; background:#222; }
+  .story img.helt { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .story .hoved { position:absolute; top:16px; left:10px; right:10px; display:flex; align-items:center; gap:8px; }
+  .story .hvem .navn, .story .hvem .sponsor { color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.55); }
+  .story .bund { position:absolute; left:0; right:0; bottom:18px; display:grid; justify-items:center; }
+  .story .bund .knap { background:#fff; color:#111; font-weight:650; font-size:13.5px; padding:8px 20px; border-radius:999px; }
+  .laeser { display:grid; place-items:center; color:var(--daempet); font-size:13px; }
+
+  .beslut { background:var(--kort); border:1px solid var(--linje); border-radius:14px; padding:14px; margin-top:14px; max-width:400px; }
+  .beslut .knapper { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .beslut .knapper button { border:1.5px solid var(--linje); background:#fff; border-radius:10px; padding:10px 6px; font-weight:650; cursor:pointer; }
+  .beslut .knapper button[data-v="godkend"][aria-pressed="true"] { background:var(--ok); border-color:var(--ok); color:#fff; }
+  .beslut .knapper button[data-v="ret"][aria-pressed="true"] { background:var(--ret); border-color:var(--ret); color:#fff; }
+  .beslut .knapper button[data-v="afvis"][aria-pressed="true"] { background:var(--nej); border-color:var(--nej); color:#fff; }
+  .beslut textarea { width:100%; min-height:84px; margin-top:10px; border:1.5px solid var(--linje); border-radius:10px; padding:10px; font:inherit; resize:vertical; }
+  .beslut .naeste { margin-top:10px; width:100%; border:0; background:none; color:var(--daempet); font-size:13px; text-decoration:underline; cursor:pointer; }
+
+  .boks { background:var(--kort); border:1px solid var(--linje); border-radius:14px; padding:16px 18px; margin-bottom:18px; }
+  .boks h3 { margin:0 0 4px; font-size:15px; }
+  .thumbs { display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:10px; margin-top:12px; }
+  .thumb { position:relative; border:0; background:transparent; padding:0; cursor:pointer; text-align:left; }
+  .thumb .ramme { display:block; width:100%; aspect-ratio:4/5; border-radius:8px; border:2px solid transparent; background:#E7E3DA center/cover no-repeat; }
+  .thumb[aria-current="true"] .ramme { border-color:var(--tekst); }
+  .thumb span.nr { display:block; font-size:12.5px; margin-top:4px; }
+  .maerke { position:absolute; top:5px; right:5px; width:22px; height:22px; border-radius:50%; color:#fff; font-size:13px; font-weight:700; display:grid; place-items:center; }
+  .maerke.godkend { background:var(--ok); } .maerke.ret { background:var(--ret); } .maerke.afvis { background:var(--nej); }
+  .linjer { margin:6px 0 0; padding:0; list-style:none; } .linjer li { padding:5px 0; border-top:1px solid var(--linje); font-size:14px; } .linjer li:first-child { border-top:0; }
+  .aegte { background:#F1EEE6; border-radius:10px; padding:12px 14px; font-size:13.5px; margin-top:6px; }
+
+  .bar { position:fixed; left:0; right:0; bottom:0; background:var(--kort); border-top:1px solid var(--linje); padding:12px 16px; box-shadow:0 -4px 16px rgba(0,0,0,.05); }
+  .bar .ind { max-width:1100px; margin:0 auto; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+  .bar .status { font-size:14px; }
+  .bar button.send { border:0; background:var(--valgt); color:var(--offwhite); font-weight:650; padding:12px 22px; border-radius:999px; cursor:pointer; }
+  .bar button.send:disabled { opacity:.45; cursor:default; }
+  .err { background:#fbeaea; border:1px solid #e6b7b7; color:#8a2b2b; border-radius:10px; padding:14px 16px; }
+  .tak { background:#EAF1EA; border:1px solid #c5d8c5; border-radius:12px; padding:16px; margin-bottom:20px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="laeser" style="min-height:60vh">Henter dine annoncer…</div></div>
+<div class="bar" id="bar" hidden><div class="ind"><div class="status" id="status"></div><button class="send" id="send" disabled>Send mine svar</button></div></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbwkwR3CmhXosKJdurlSGU6qez9QPUMZDjan8XRtgwWRGRdUuttxj9iSgRPU55NPaWpP/exec';
+const QS = new URLSearchParams(location.search);
+const BOOT = QS.get('b') && QS.get('k') ? { b: QS.get('b'), k: QS.get('k') } : { fejl: 'Linket virker ikke. Skriv til os, så sender vi et nyt.' };
+async function api(params) {
+  const r = await fetch(API + '?' + new URLSearchParams(params), { credentials: 'omit' });
+  const j = await r.json(); if (!j.ok) throw new Error(j.error || 'fejl'); return j;
+}
+async function post(body) {
+  const r = await fetch(API, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+  const j = await r.json(); if (!j.ok) throw new Error(j.error || 'fejl'); return j;
+}
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const app = document.getElementById('app');
+let D, state = { gruppe:0, annonce:0, platform:'instagram', format:'feed' };
+const svar = {};          // fil -> {beslutning, rettelse}
+const sendt = {};         // fil -> json af sidst sendte svar
+const billeder = {};      // fileId -> dataURL
+const venter = {};        // fileId -> [callbacks]
+
+if (BOOT.fejl) { app.innerHTML = '<div class="err">' + esc(BOOT.fejl) + '</div>'; }
+else {
+  api({ api: 'batch', b: BOOT.b, k: BOOT.k }).then(j => start(j.data)).catch(fejl);
+}
+
+function fejl(e) { app.innerHTML = '<div class="err">Noget gik galt: ' + esc(e && e.message || e) + '. Prøv at genindlæse siden.</div>'; }
+
+function billede(id, cb) {
+  if (!id) return;
+  if (billeder[id]) return cb(billeder[id]);
+  if (venter[id]) return venter[id].push(cb);
+  venter[id] = [cb];
+  api({ api: 'billede', b: BOOT.b, k: BOOT.k, id }).then(j => { billeder[id] = j.url; venter[id].forEach(f => f(j.url)); delete venter[id]; })
+    .catch(() => delete venter[id]);
+}
+
+function start(data) {
+  D = data;
+  Object.keys(D.svar || {}).forEach(fil => {
+    const s = D.svar[fil];
+    const v = { 'Godkendt':'godkend', 'Til rettelse':'ret', 'Afvist':'afvis' }[s.beslutning];
+    if (v) { svar[fil] = { beslutning:v, rettelse:s.rettelse || '' }; sendt[fil] = JSON.stringify(svar[fil]); }
+  });
+  const antal = D.grupper.reduce((n, g) => n + g.annoncer.length, 0);
+  app.innerHTML = `
+    <header class="top">
+      <img class="logo" id="logo" alt="${esc(D.klinik)}" hidden>
+      <h1>Dine annoncer til godkendelse</h1>
+      <div class="sub">${antal} annoncer. Hver findes i to formater: 4:5 til feedet og 9:16 til stories og reels.
+        Tryk på <b>Godkend</b>, <b>Ret</b> eller <b>Afvis</b> under hver annonce, og send dine svar nederst, når du er klar. Du kan godt sende nogle nu og resten senere.</div>
+    </header>
+    <div id="tak"></div>
+    <div class="foer"><h3>Godt at vide</h3><ol>
+      <li>Vil du have noget ændret, så tryk på <b>Ret</b> og skriv, hvad der skal ændres. Fx “gør lyset varmere” eller “prisen skal stå større”.</li>
+      <li>Annoncerne går først live, når du har godkendt dem.</li></ol></div>
+    <h2>Annoncer</h2>
+    <div class="grupper" id="grupper"></div>
+    <div class="grid">
+      <section><div class="valgt-navn" id="valgt-navn"></div><div class="skift" id="skift"></div><div id="visning"></div><div class="beslut" id="beslut"></div></section>
+      <section><div class="boks"><h3 id="gruppe-titel"></h3><div class="lille">Tryk på en annonce for at se den stor.</div><div class="thumbs" id="thumbs"></div></div>
+      <div class="boks" id="tekster"></div></section>
+    </div>`;
+  if (D.logo) billede(D.logo, u => { const l = document.getElementById('logo'); l.src = u; l.hidden = false; });
+  document.getElementById('bar').hidden = false;
+  document.getElementById('send').onclick = send;
+  alt();
+}
+
+const G = () => D.grupper[state.gruppe];
+const A = () => G().annoncer[state.annonce];
+
+function visGrupper() {
+  document.getElementById('grupper').innerHTML = D.grupper.map((g, i) => {
+    const besvaret = g.annoncer.filter(a => svar[a.fil]).length;
+    return `<button class="gruppe" aria-pressed="${i === state.gruppe}" data-i="${i}"><div class="navn">${esc(g.navn)}</div>
+      <div class="slags">${esc(g.slags)}, ${besvaret} af ${g.annoncer.length} besvaret</div></button>`; }).join('');
+  document.querySelectorAll('.gruppe').forEach(b => b.onclick = () => { state.gruppe = +b.dataset.i; state.annonce = 0; alt(); });
+}
+
+function visSkift() {
+  const seg = (navn, valg) => `<div class="seg">${valg.map(([v, t]) => `<button data-${navn}="${v}" aria-pressed="${state[navn] === v}">${t}</button>`).join('')}</div>`;
+  const el = document.getElementById('skift');
+  el.innerHTML = seg('platform', [['instagram','Instagram'],['facebook','Facebook']]) + seg('format', [['feed','Feed 4:5'],['story','Stories og reels 9:16']]);
+  el.querySelectorAll('[data-platform]').forEach(b => b.onclick = () => { state.platform = b.dataset.platform; visSkift(); visAnnonce(); });
+  el.querySelectorAll('[data-format]').forEach(b => b.onclick = () => { state.format = b.dataset.format; visSkift(); visAnnonce(); });
+}
+
+function visAnnonce() {
+  const g = G(), a = A(), ig = state.platform === 'instagram';
+  const navn = ig ? D.handle : D.fbnavn;
+  document.getElementById('valgt-navn').textContent = `${g.navn}, ${g.slags.toLowerCase()}, nr. ${a.nr}`;
+  const av = `<div class="avatar"><img class="av" alt=""></div>`;
+  const hoved = `<div class="hoved">${av}<div class="hvem"><div class="navn">${esc(navn)}</div><div class="sponsor">Sponsoreret</div></div></div>`;
+  const id = state.format === 'story' ? a.story : a.feed;
+  let html;
+  if (state.format === 'story') html = `<div class="story"><img class="helt" id="hovedbillede" alt="">${hoved}<div class="bund"><span class="knap">Book nu</span></div></div>`;
+  else if (ig) html = `<div class="post">${hoved}<img class="billede" id="hovedbillede" alt=""><div class="ig-cta"><span>Book nu</span><span>›</span></div>
+      <div class="tekst"><b>${esc(D.handle)}</b> ${esc(String(g.opslag || '').slice(0, 80))}<span class="lille">… mere</span></div></div>`;
+  else html = `<div class="post">${hoved}<div class="fb-tekst">${esc(g.opslag)}</div><img class="billede" id="hovedbillede" alt="">
+      <div class="fb-kort"><div class="meta"><div class="lille">${esc(D.klinik)}${D.by ? ', ' + esc(D.by) : ''}</div><div class="hl">${esc(g.fb)}</div></div><div class="knap">Book nu</div></div></div>`;
+  document.getElementById('visning').innerHTML = html;
+  billede(id, u => { const el = document.getElementById('hovedbillede'); if (el && (state.format === 'story' ? A().story : A().feed) === id) el.src = u; });
+  if (D.avatar) billede(D.avatar, u => document.querySelectorAll('img.av').forEach(i => i.src = u));
+  visBeslut();
+}
+
+function visBeslut() {
+  const a = A(), s = svar[a.fil] || {};
+  const el = document.getElementById('beslut');
+  el.innerHTML = `<div class="knapper">
+      <button data-v="godkend" aria-pressed="${s.beslutning === 'godkend'}">Godkend</button>
+      <button data-v="ret" aria-pressed="${s.beslutning === 'ret'}">Ret</button>
+      <button data-v="afvis" aria-pressed="${s.beslutning === 'afvis'}">Afvis</button></div>
+    ${s.beslutning === 'ret' || s.beslutning === 'afvis' ? `<textarea id="rettelse" placeholder="${s.beslutning === 'ret' ? 'Hvad skal ændres? Skriv også, hvis det kun gælder 9:16.' : 'Vil du skrive hvorfor? (frivilligt)'}">${esc(s.rettelse || '')}</textarea>` : ''}
+    <button class="naeste" id="naeste">Næste annonce</button>`;
+  el.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
+    const v = b.dataset.v;
+    if (s.beslutning === v) delete svar[a.fil]; else svar[a.fil] = { beslutning:v, rettelse:(svar[a.fil] || {}).rettelse || '' };
+    visBeslut(); visThumbs(); visGrupper(); visStatus();
+    if (v !== 'godkend' && svar[a.fil]) document.getElementById('rettelse').focus();
+  });
+  const ta = document.getElementById('rettelse');
+  if (ta) ta.oninput = () => { svar[a.fil].rettelse = ta.value; visStatus(); };
+  document.getElementById('naeste').onclick = naeste;
+}
+
+function naeste() {
+  if (state.annonce < G().annoncer.length - 1) state.annonce++;
+  else if (state.gruppe < D.grupper.length - 1) { state.gruppe++; state.annonce = 0; }
+  alt();
+  document.getElementById('valgt-navn').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function visThumbs() {
+  const g = G();
+  document.getElementById('gruppe-titel').textContent = `${g.navn}, ${g.slags.toLowerCase()}`;
+  const tegn = { godkend:'✓', ret:'!', afvis:'×' };
+  document.getElementById('thumbs').innerHTML = g.annoncer.map((a, i) => {
+    const s = svar[a.fil];
+    return `<button class="thumb" aria-current="${i === state.annonce}" data-i="${i}"><span class="ramme" data-id="${a.feed}"></span>
+      ${s ? `<span class="maerke ${s.beslutning}">${tegn[s.beslutning]}</span>` : ''}<span class="nr">Nr. ${a.nr}</span></button>`; }).join('');
+  document.querySelectorAll('.thumb').forEach(b => {
+    b.onclick = () => { state.annonce = +b.dataset.i; visThumbs(); visAnnonce();
+      if (innerWidth < 880) document.getElementById('valgt-navn').scrollIntoView({ behavior:'smooth', block:'start' }); };
+    const r = b.querySelector('.ramme'); billede(r.dataset.id, u => r.style.backgroundImage = `url("${u}")`);
+  });
+}
+
+function visTekster() {
+  const g = G();
+  document.getElementById('tekster').innerHTML = `<h3>Teksten på billederne</h3><ul class="linjer">${g.billedtekst.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+    ${g.opslag ? `<h3 style="margin-top:18px">Eksempel på tekst over billedet</h3><ul class="linjer"><li>${esc(g.opslag)}</li><li>Knap: Book nu</li></ul>` : ''}
+    ${g.aegte ? `<h3 style="margin-top:18px">Hvad er ægte</h3><div class="aegte">${esc(g.aegte)}</div>` : ''}`;
+}
+
+function aendringer() { return Object.keys(svar).filter(f => JSON.stringify(svar[f]) !== sendt[f]); }
+
+function visStatus() {
+  const total = D.grupper.reduce((n, g) => n + g.annoncer.length, 0);
+  const besvaret = Object.keys(svar).length, nye = aendringer().length;
+  const manglerTekst = aendringer().some(f => svar[f].beslutning === 'ret' && !String(svar[f].rettelse).trim());
+  document.getElementById('status').textContent = manglerTekst ? 'Skriv, hvad der skal rettes, før du sender.' :
+    `${besvaret} af ${total} besvaret` + (nye ? `, ${nye} ikke sendt endnu` : '');
+  document.getElementById('send').disabled = !nye || manglerTekst;
+}
+
+function send() {
+  const btn = document.getElementById('send');
+  const liste = aendringer().map(fil => {
+    let gr, an; D.grupper.forEach(g => g.annoncer.forEach(a => { if (a.fil === fil) { gr = g; an = a; } }));
+    return { gruppe:`${gr.navn}, ${gr.slags.toLowerCase()}`, nr:an.nr, fil:fil, beslutning:svar[fil].beslutning, rettelse:svar[fil].rettelse };
+  });
+  btn.disabled = true; btn.textContent = 'Sender…';
+  post({ action: 'svar', b: BOOT.b, k: BOOT.k, liste }).then(() => {
+    liste.forEach(s => sendt[s.fil] = JSON.stringify(svar[s.fil]));
+    btn.textContent = 'Send mine svar'; visStatus();
+    document.getElementById('tak').innerHTML = `<div class="tak"><b>Tak, dine svar er sendt.</b> Vi går i gang med det samme og vender tilbage, hvis noget er uklart.</div>`;
+    document.getElementById('tak').scrollIntoView({ behavior:'smooth' });
+  }).catch(e => { btn.textContent = 'Send mine svar'; visStatus(); document.getElementById('status').textContent = 'Det lykkedes ikke at sende. Prøv igen om lidt.'; });
+}
+
+function alt() { visGrupper(); visSkift(); visAnnonce(); visThumbs(); visTekster(); visStatus(); }
+</script>
+</body>
+</html>
