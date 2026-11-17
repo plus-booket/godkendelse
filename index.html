@@ -50,11 +50,29 @@
   /* scene */
   .scene { position:relative; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 16px; gap:10px; }
   .ramme { position:relative; width:100%; display:flex; justify-content:center; align-items:center; flex:1; min-height:0; touch-action:pan-y; container-type:size; }
-  .kortet { position:relative; width:min(100cqw, 80cqh); aspect-ratio:4/5; border-radius:14px; overflow:hidden; background:#E7E3DA; box-shadow:0 10px 30px rgba(54,52,47,.12);
-    transition:transform .38s var(--ease), opacity .38s var(--ease), aspect-ratio .3s var(--ease); will-change:transform, opacity; }
-  .kortet.story { width:min(100cqw, 56.25cqh); aspect-ratio:9/16; }
-  .kortet img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .35s ease; }
-  .kortet img.klar { opacity:1; }
+  .kortet { position:relative; width:min(100cqw, calc((100cqh - 132px) * .8)); border-radius:14px; overflow:hidden; background:#fff; color:#111; border:1px solid var(--linje); box-shadow:0 10px 30px rgba(54,52,47,.12);
+    transition:transform .38s var(--ease), opacity .38s var(--ease); will-change:transform, opacity; }
+  .kortet.story { width:min(100cqw, 56.25cqh); aspect-ratio:9/16; border:0; background:#111; }
+  .ig-hoved { display:flex; align-items:center; gap:9px; padding:8px 11px; height:50px; }
+  .ig-av { width:32px; height:32px; border-radius:50%; overflow:hidden; flex:none; background:#D9D5CC; box-shadow:0 0 0 1.5px #fff, 0 0 0 2.5px #E2DED5; }
+  .ig-av img { width:100%; height:100%; display:block; object-fit:cover; }
+  .ig-navn { line-height:1.15; font-size:13px; } .ig-navn b { font-weight:650; } .ig-navn span { display:block; font-size:11.5px; color:#737373; }
+  .ig-prik { margin-left:auto; color:#262626; font-weight:700; letter-spacing:1px; }
+  .ig-bill { position:relative; aspect-ratio:4/5; background:#E7E3DA; overflow:hidden; }
+  .kortet.story .ig-bill { position:absolute; inset:0; aspect-ratio:auto; }
+  .ig-cta { display:flex; justify-content:space-between; align-items:center; height:40px; padding:0 12px; font-weight:600; font-size:13.5px; background:#fff; border-bottom:1px solid #efefef; }
+  .ig-ikoner { display:flex; gap:14px; align-items:center; height:42px; padding:0 12px; }
+  .ig-ikoner svg { width:22px; height:22px; }
+  .ig-ikoner .gem { margin-left:auto; }
+  .kortet.story .ig-bill::after { content:''; position:absolute; left:0; right:0; top:0; height:16%; background:linear-gradient(rgba(0,0,0,.4), rgba(0,0,0,0)); z-index:2; pointer-events:none; }
+  .kortet.story .ig-hoved { position:absolute; top:12px; left:4px; right:4px; z-index:3; height:auto; }
+  .kortet.story .ig-navn, .kortet.story .ig-navn span, .kortet.story .ig-prik { color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.5); }
+  .kortet.story .ig-bar { position:absolute; top:6px; left:8px; right:8px; height:2.5px; border-radius:2px; background:rgba(255,255,255,.45); z-index:3; }
+  .kortet.story .ig-bar i { display:block; width:35%; height:100%; background:#fff; border-radius:2px; }
+  .kortet.story .ig-svar { position:absolute; left:0; right:0; bottom:14px; z-index:3; display:grid; justify-items:center; gap:3px; color:#fff; font-size:12px; text-shadow:0 1px 3px rgba(0,0,0,.5); }
+  .kortet.story .ig-svar span { background:#fff; color:#111; font-weight:650; font-size:13px; padding:7px 18px; border-radius:999px; text-shadow:none; }
+  .ig-bill img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .35s ease; }
+  .ig-bill img.klar { opacity:1; }
   .kortet .skimmer { position:absolute; inset:0; background:linear-gradient(100deg, #E7E3DA 30%, #EFECE5 50%, #E7E3DA 70%); background-size:200% 100%; animation:skim 1.2s linear infinite; }
   @keyframes skim { to { background-position:-200% 0; } }
   .kortet.ud-venstre { transform:translateX(-110%) rotate(-6deg); opacity:0; }
@@ -191,7 +209,7 @@ function tegn() {
   topbar();
   if (faerdig) return tegnFaerdig();
   $('scene').innerHTML = `
-    <div class="ramme" id="ramme"><div class="kortet ${format}" id="kortet"><div class="skimmer"></div><img id="hb" alt=""></div></div>
+    <div class="ramme" id="ramme"><div class="kortet ${format}" id="kortet">${kortIndhold()}</div></div>
     <div class="under">
       <div class="format" role="group" aria-label="Format">
         <button data-f="feed" aria-pressed="${format === 'feed'}">Feed</button>
@@ -204,7 +222,7 @@ function tegn() {
       <button class="ret" data-v="ret">Ret</button>
       <button class="godkend" data-v="godkend">Godkend</button></div>
     <button class="sendknap" id="sendknap" hidden></button>`;
-  document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { if (format === b.dataset.f) return; format = b.dataset.f; document.querySelectorAll('[data-f]').forEach(x => x.setAttribute('aria-pressed', x === b)); $('kortet').classList.toggle('story', format === 'story'); visBillede(); forhent(); });
+  document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { if (format === b.dataset.f) return; format = b.dataset.f; document.querySelectorAll('[data-f]').forEach(x => x.setAttribute('aria-pressed', x === b)); $('kortet').classList.toggle('story', format === 'story'); $('kortet').innerHTML = kortIndhold(); visAnnonce(); });
   document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => beslut(b.dataset.v));
   $('forrige').onclick = () => gaaTil((pos - 1 + alle.length) % alle.length, 'hoejre');
   $('naeste').onclick = () => gaaTil((pos + 1) % alle.length, 'venstre');
@@ -213,8 +231,22 @@ function tegn() {
   visAnnonce();
 }
 
+const IKON = {
+  hjerte:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+  boble:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.4 8.4 0 0 1-11.8 7.7L3 21l1.9-6.2A8.4 8.4 0 1 1 21 11.5z"/></svg>',
+  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
+  gem:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>'
+};
+function kortIndhold() {
+  const hoved = `<div class="ig-hoved"><div class="ig-av"><img class="av" alt=""></div><div class="ig-navn"><b>${esc(D.handle)}</b><span>Sponsoreret</span></div><span class="ig-prik">···</span></div>`;
+  const bill = `<div class="ig-bill" id="igbill"><div class="skimmer"></div><img id="hb" alt=""></div>`;
+  if (format === 'story') return `${bill}<div class="ig-bar"><i></i></div>${hoved}<div class="ig-svar">︿<span>Book nu</span></div>`;
+  return `${hoved}${bill}<div class="ig-cta"><span>Book nu</span><span>›</span></div>
+    <div class="ig-ikoner">${IKON.hjerte}${IKON.boble}${IKON.send}<span class="gem">${IKON.gem}</span></div>`;
+}
+
 function visAnnonce() {
-  const a = alle[pos], s = svar[a.fil], k = $('kortet');
+  const a = alle[pos], s = svar[a.fil], k = $('igbill');
   const gl = k.querySelector('.maerke'); if (gl) gl.remove();
   if (s) {
     const m = document.createElement('div');
@@ -224,6 +256,7 @@ function visAnnonce() {
     m.querySelector('[data-a="fortryd"]').onclick = () => { delete svar[a.fil]; gem(); visAnnonce(); topbar(); };
     const ae = m.querySelector('[data-a="aendr"]'); if (ae) ae.onclick = () => aabnArk(a);
   }
+  billede(D.avatar).then(u => { if (u) document.querySelectorAll('img.av').forEach(i => i.src = u); });
   visBillede(); topbar(); forhent();
 }
 
